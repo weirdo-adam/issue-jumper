@@ -19,9 +19,10 @@
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-111111?style=flat-square"></a>
   <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-4A4A4A?style=flat-square">
-  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-6F6F6F?style=flat-square">
+  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--alt-6F6F6F?style=flat-square">
   <img alt="Privacy: local only" src="https://img.shields.io/badge/privacy-local%20only-2F2F2F?style=flat-square">
-  <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-555555?style=flat-square">
+  <a href="https://github.com/weirdo-adam/issue-jumper/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/weirdo-adam/issue-jumper/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/weirdo-adam/issue-jumper/actions/workflows/release.yml"><img alt="Release" src="https://github.com/weirdo-adam/issue-jumper/actions/workflows/release.yml/badge.svg"></a>
 </p>
 
 Issue Jumper resolves an issue URL from the current Git branch and opens it in the system browser. It is a convention-first CLI with a Zed installer for one-key navigation from an editor workspace.
@@ -68,11 +69,11 @@ Install the latest release and configure Zed:
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
 ```
 
-The installer downloads the Apple Silicon macOS archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
+The installer downloads the supported Unix host archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
 
 Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced.
 
-Other platforms should build and package locally on that host with `scripts/package-release.sh`.
+GitHub Releases publish prebuilt archives for Apple Silicon macOS, Linux x64, and Windows x64. The shell installer supports Apple Silicon macOS and Linux x64. Windows users can download the `.zip` asset and place `issue-jumper.exe` on `PATH`.
 
 Install with options:
 
@@ -195,7 +196,7 @@ Publish a local release artifact:
 scripts/publish-release.sh v0.1.0
 ```
 
-Release artifacts are built and uploaded locally with repository scripts.
+Release artifacts are normally built by GitHub Actions when a `v*` tag is pushed. A release can also be rebuilt manually from the Actions tab by running the `Release` workflow with a tag such as `v0.1.0`.
 
 ## Documentation
 

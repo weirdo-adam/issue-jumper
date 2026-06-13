@@ -90,10 +90,21 @@ The shortcut path stays on built-in Zed task/keymap primitives so the one-key br
 
 Future editor or launcher integrations should follow this structure: add a narrow installer command and target module, then call the same `open`, `url`, and `doctor` workflow rather than duplicating branch parsing or URL construction.
 
+## Release Automation
+
+GitHub Actions owns the normal release path. Pushing a `v*` tag runs `.github/workflows/release.yml`, builds the release matrix, and uploads assets to the matching GitHub Release.
+
+Current release targets:
+
+- `aarch64-apple-darwin`
+- `x86_64-unknown-linux-gnu`
+- `x86_64-pc-windows-msvc`
+
+The same workflow supports manual rebuilds from the Actions tab through `workflow_dispatch`; pass the release tag, for example `v0.1.0`.
+
 ## Local Release
 
-Release artifacts are built and uploaded from a local machine with repository scripts.
-The public one-line installer currently targets the Apple Silicon macOS release archive. Build and publish additional targets from machines that can produce those artifacts.
+Local release scripts remain available for testing or emergency uploads.
 
 Package the current host target:
 

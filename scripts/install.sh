@@ -23,7 +23,7 @@ usage() {
 Usage: scripts/install.sh [options]
 
 Download a release archive, install issue-jumper, and install the Zed integration.
-Prebuilt release archives currently support Apple Silicon macOS.
+Prebuilt release archives currently support Apple Silicon macOS and Linux x64.
 
 Options:
   --version <tag>      Release tag to install. Defaults to latest.
@@ -133,9 +133,7 @@ detect_target() {
     Darwin:x86_64)
       die "no prebuilt release archive is published for macOS x86_64; build locally with scripts/package-release.sh on that host"
       ;;
-    Linux:x86_64|Linux:amd64)
-      die "no prebuilt release archive is published for Linux x86_64; build locally with scripts/package-release.sh on that host"
-      ;;
+    Linux:x86_64|Linux:amd64) echo "x86_64-unknown-linux-gnu" ;;
     *)
       die "unsupported platform $os/$arch"
       ;;

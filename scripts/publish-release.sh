@@ -84,7 +84,7 @@ archive="$("$repo_dir/scripts/package-release.sh" "${package_args[@]}")"
 if gh release view "$tag" --repo "$repo" >/dev/null 2>&1; then
   gh release upload "$tag" "$archive" --repo "$repo" --clobber
 else
-  create_args=("$tag" "$archive" "--repo" "$repo" "--title" "$tag" "--notes" "CLI release for Issue Jumper.")
+  create_args=("$tag" "$archive" "--repo" "$repo" "--title" "$tag" "--generate-notes")
   if [[ "$draft" -eq 1 ]]; then
     create_args+=("--draft")
   fi
