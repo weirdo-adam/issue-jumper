@@ -11,7 +11,7 @@
 <p align="center">
   <a href="README.zh-CN.md">中文文档</a>
   ·
-  <a href="docs/design.md">Technical design</a>
+  <a href="docs/technical-design.md">Technical design</a>
   ·
   <a href="docs/development.md">Development guide</a>
 </p>
@@ -200,7 +200,7 @@ Release artifacts are normally built by GitHub Actions when a `v*` tag is pushed
 
 ## Documentation
 
-- [Technical design](docs/design.md)
+- [Technical design](docs/technical-design.md)
 - [Development guide](docs/development.md)
 
 ## License
