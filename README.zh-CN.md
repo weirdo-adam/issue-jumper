@@ -50,7 +50,7 @@ scripts/install-zed.sh
 | 默认 Zed keymap 项 | `alt-j` |
 | 手动入口 | Command Palette -> `task: spawn` -> `Issue Jumper: Open Current Issue` |
 
-这里记录的是写入 Zed `keymap.json` 的按键字符串。不同平台或键盘布局需要其他绑定时，使用 `--key <key>` 指定。
+这里记录的是写入 Zed `keymap.json` 的按键字符串。Zed 使用 `alt-` 表示 Alt/Option 修饰键；在 macOS 上，`alt-j` 对应按下 Option+J。不同平台或键盘布局需要其他绑定时，使用 `--key <key>` 指定。
 
 选项：
 

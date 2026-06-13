@@ -121,7 +121,7 @@ CLI 可以直接在终端或脚本中运行，也可以在 Zed task 进程中运
 2. 执行 issue-jumper install-zed
 3. 安装器写入或更新 Zed tasks.json
 4. 安装器写入或更新 Zed keymap.json
-5. 用户在 Zed 中按 alt-j
+5. 用户在 Zed 中触发 `alt-j` keymap 绑定；macOS 上对应 Option+J
 6. 默认浏览器打开当前分支对应的 Issue
 ```
 
@@ -691,7 +691,7 @@ pub enum IssueJumperError {
 | 验收项 | 通过标准 |
 | --- | --- |
 | `install-zed` | 正确写入或更新 tasks/keymap，并生成备份 |
-| 快捷键触发 | 在 Zed Workspace 中触发 `alt-j` keymap 绑定会执行 task |
+| 快捷键触发 | 在 Zed Workspace 中触发 `alt-j` keymap 绑定会执行 task；macOS 上对应 Option+J |
 | worktree 传参 | CLI 收到 `$ZED_WORKTREE_ROOT` 对应的项目路径 |
 | 成功体验 | 浏览器打开 Issue URL，Zed 焦点不被明显打断 |
 | 失败体验 | task 失败并保留可读错误输出 |

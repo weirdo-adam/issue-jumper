@@ -50,7 +50,7 @@ scripts/install-zed.sh
 | Default Zed keymap entry | `alt-j` |
 | Manual entry | Command Palette -> `task: spawn` -> `Issue Jumper: Open Current Issue` |
 
-The default is documented as the key string written to Zed `keymap.json`. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
+The default is documented as the key string written to Zed `keymap.json`. Zed uses `alt-` for the Alt/Option modifier; on macOS, `alt-j` is pressed as Option+J. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
 
 Options:
 
