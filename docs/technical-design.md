@@ -726,10 +726,19 @@ issue-jumper/
 ├── rust-toolchain.toml
 ├── Makefile
 ├── .editorconfig
+├── .github/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── ISSUE_TEMPLATE/
+│   │   └── issue.md
+│   └── workflows/
+│       ├── ci.yml
+│       └── release.yml
 ├── README.md
 ├── README.zh-CN.md
-├── AGENTS.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
 ├── LICENSE
+├── SECURITY.md
 ├── docs/
 │   ├── technical-design.md
 │   └── development.md

@@ -1,3 +1,8 @@
+---
+name: Issue
+about: Report a problem or request an improvement.
+---
+
 # Issue
 
 ## Summary
