@@ -13,6 +13,20 @@ fn binary_prints_help_successfully() {
 }
 
 #[test]
+fn binary_prints_version_successfully() {
+    let output = Command::new(env!("CARGO_BIN_EXE_issue-jumper"))
+        .arg("--version")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout).trim(),
+        concat!("issue-jumper ", env!("CARGO_PKG_VERSION"))
+    );
+}
+
+#[test]
 fn binary_reports_unknown_command_failure() {
     let output = Command::new(env!("CARGO_BIN_EXE_issue-jumper"))
         .arg("missing")

@@ -31,6 +31,10 @@ pub fn run(args: Vec<String>) -> Result<()> {
             print_help();
             Ok(())
         }
+        "-V" | "--version" | "version" => {
+            print_version();
+            Ok(())
+        }
         other => Err(IssueJumperError::Usage(format!(
             "Unknown command `{other}`"
         ))),
@@ -84,6 +88,11 @@ fn print_help() {
     );
     println!("  issue-jumper install-zed [--key <key>] [--force] [--print]");
     println!("  issue-jumper doctor [--repo <path>]");
+    println!("  issue-jumper --version");
+}
+
+fn print_version() {
+    println!("issue-jumper {}", env!("CARGO_PKG_VERSION"));
 }
 
 #[cfg(test)]
@@ -98,6 +107,13 @@ mod tests {
     #[test]
     fn prints_help_for_help_commands() {
         for command in ["help", "-h", "--help"] {
+            run(vec![command.to_string()]).unwrap();
+        }
+    }
+
+    #[test]
+    fn prints_version_for_version_commands() {
+        for command in ["version", "-V", "--version"] {
             run(vec![command.to_string()]).unwrap();
         }
     }
