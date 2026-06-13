@@ -26,7 +26,7 @@
 
 Issue Jumper resolves an issue URL from the current Git branch and opens it in the system browser. It is a convention-first CLI with a Zed installer for one-key navigation from an editor workspace.
 
-Press Ctrl+J in Zed, or run `issue-jumper open`, to jump from a branch such as `feature/GH-123-add-login` to the matching issue page.
+Double-tap Option/Alt in Zed, or run `issue-jumper open`, to jump from a branch such as `feature/GH-123-add-login` to the matching issue page.
 
 ## Quick Start
 
@@ -80,7 +80,7 @@ Install with options:
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key ctrl-shift-j
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.2 --install-dir ~/.local/bin
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.0 --install-dir ~/.local/bin
 ```
 
 For local development, build from source and install the Zed integration:
@@ -97,10 +97,10 @@ scripts/install-zed.sh
 | --- | --- |
 | Task label | `Issue Jumper: Open Current Issue` |
 | Task command | `issue-jumper open --repo $ZED_WORKTREE_ROOT` |
-| Default Zed keymap entry | `ctrl-j` |
+| Default Zed keymap entry | `alt alt` |
 | Manual entry | Command Palette -> `task: spawn` -> `Issue Jumper: Open Current Issue` |
 
-The default is documented as the key string written to Zed `keymap.json`. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
+The default is documented as the key sequence written to Zed `keymap.json`; `alt alt` means pressing and releasing Option/Alt twice. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
 
 Options:
 
@@ -186,13 +186,13 @@ sh -n scripts/install.sh
 Build a local release archive:
 
 ```sh
-scripts/package-release.sh --version v0.1.2
+scripts/package-release.sh --version v0.1.0
 ```
 
 Publish a local release artifact:
 
 ```sh
-scripts/publish-release.sh v0.1.2
+scripts/publish-release.sh v0.1.0
 ```
 
 Release artifacts are built and uploaded locally with repository scripts.

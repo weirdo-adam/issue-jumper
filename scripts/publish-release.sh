@@ -13,11 +13,11 @@ usage() {
 Usage: scripts/publish-release.sh <tag> [--target <triple>] [--repo <owner/name>] [--draft] [--prerelease]
 
 Build a local release package and upload it to GitHub Releases with gh.
-The tag should include the leading v, for example v0.1.2.
+The tag should include the leading v, for example v0.1.0.
 
 Examples:
-  scripts/publish-release.sh v0.1.2
-  scripts/publish-release.sh v0.1.2 --target aarch64-apple-darwin
+  scripts/publish-release.sh v0.1.0
+  scripts/publish-release.sh v0.1.0 --target aarch64-apple-darwin
 USAGE
 }
 

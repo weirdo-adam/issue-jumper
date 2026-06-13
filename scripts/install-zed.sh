@@ -3,7 +3,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_dir="$(cd "$script_dir/.." && pwd)"
-key="ctrl-j"
+key="alt alt"
 force=1
 print=0
 
@@ -14,7 +14,7 @@ Usage: scripts/install-zed.sh [--key <key>] [--force] [--no-force] [--print]
 Build issue-jumper from source and install the Zed task/keymap integration.
 
 Options:
-  --key <key>  Keybinding to install. Defaults to ctrl-j.
+  --key <key>  Keybinding to install. Defaults to alt alt.
   --force      Replace an existing binding for the selected key. Default.
   --no-force   Fail instead of replacing an existing foreign binding.
   --print      Print the generated tasks/keymap snippets instead of writing.

@@ -3,7 +3,7 @@ set -eu
 
 repo="${ISSUE_JUMPER_REPO:-weirdo-adam/issue-jumper}"
 version="${VERSION:-}"
-key="${KEY:-ctrl-j}"
+key="${KEY:-alt alt}"
 install_zed="${INSTALL_ZED:-1}"
 force=1
 
@@ -28,7 +28,7 @@ Prebuilt release archives currently support Apple Silicon macOS.
 Options:
   --version <tag>      Release tag to install. Defaults to latest.
   --install-dir <dir>  Install directory. Defaults to ~/.local/bin.
-  --key <key>          Zed keybinding. Defaults to ctrl-j.
+  --key <key>          Zed keybinding. Defaults to alt alt.
   --force              Replace an existing Zed binding for the selected key. Default.
   --no-force           Fail instead of replacing an existing foreign Zed binding.
   --no-zed             Install only the CLI.
