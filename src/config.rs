@@ -12,6 +12,8 @@ pub struct UserConfig {
     #[serde(default)]
     pub disabled_default_rules: Vec<String>,
     #[serde(default)]
+    pub disabled_rules: Vec<String>,
+    #[serde(default)]
     pub issue_rules: Vec<RawIssueRule>,
     #[serde(default)]
     pub custom_platforms: Vec<CustomPlatform>,
@@ -29,12 +31,29 @@ impl UserConfig {
             self.disabled_default_rules
                 .extend(override_config.disabled_default_rules);
         }
+        if !override_config.disabled_rules.is_empty() {
+            self.disabled_rules.extend(override_config.disabled_rules);
+        }
         if !override_config.issue_rules.is_empty() {
+            let override_names: Vec<&str> = override_config
+                .issue_rules
+                .iter()
+                .map(|rule| rule.name.as_str())
+                .collect();
+            self.issue_rules
+                .retain(|rule| !override_names.contains(&rule.name.as_str()));
             let mut issue_rules = override_config.issue_rules;
             issue_rules.extend(self.issue_rules);
             self.issue_rules = issue_rules;
         }
         if !override_config.custom_platforms.is_empty() {
+            let override_names: Vec<&str> = override_config
+                .custom_platforms
+                .iter()
+                .map(|platform| platform.name.as_str())
+                .collect();
+            self.custom_platforms
+                .retain(|platform| !override_names.contains(&platform.name.as_str()));
             let mut custom_platforms = override_config.custom_platforms;
             custom_platforms.extend(self.custom_platforms);
             self.custom_platforms = custom_platforms;
@@ -203,8 +222,13 @@ mod tests {
               "redmine_base_url": "https://redmine.global.example.com",
               "issue_rules": [
                 {
-                  "name": "global-redmine",
+                  "name": "shared-redmine",
                   "pattern": "global-(?P<id>\\d+)",
+                  "platform": "redmine"
+                },
+                {
+                  "name": "disabled-global-redmine",
+                  "pattern": "disabled-(?P<id>\\d+)",
                   "platform": "redmine"
                 }
               ]
@@ -215,9 +239,10 @@ mod tests {
             dir.join(".issue-jumper.json"),
             r#"{
               "redmine_base_url": "https://redmine.project.example.com",
+              "disabled_rules": ["disabled-global-redmine"],
               "issue_rules": [
                 {
-                  "name": "project-redmine",
+                  "name": "shared-redmine",
                   "pattern": "project-(?P<id>\\d+)",
                   "platform": "redmine"
                 }
@@ -233,8 +258,13 @@ mod tests {
             Some("https://redmine.project.example.com")
         );
         assert_eq!(config.issue_rules.len(), 2);
-        assert_eq!(config.issue_rules[0].name, "project-redmine");
-        assert_eq!(config.issue_rules[1].name, "global-redmine");
+        assert_eq!(config.issue_rules[0].name, "shared-redmine");
+        assert_eq!(config.issue_rules[0].pattern, "project-(?P<id>\\d+)");
+        assert_eq!(config.issue_rules[1].name, "disabled-global-redmine");
+        assert_eq!(
+            config.disabled_rules,
+            vec!["disabled-global-redmine".to_string()]
+        );
     }
 
     fn temp_dir(label: &str) -> PathBuf {

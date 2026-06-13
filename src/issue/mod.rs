@@ -51,9 +51,12 @@ pub fn extract_issue(
 
 fn build_rules(config: &UserConfig) -> Result<Vec<IssueRule>> {
     let mut rules = Vec::new();
+    let disabled_rules: HashSet<&str> = config.disabled_rules.iter().map(String::as_str).collect();
 
     for raw in &config.issue_rules {
-        rules.push(compile_raw_rule(raw)?);
+        if !disabled_rules.contains(raw.name.as_str()) {
+            rules.push(compile_raw_rule(raw)?);
+        }
     }
 
     let disabled: HashSet<&str> = config
@@ -156,11 +159,19 @@ mod tests {
     fn supports_custom_rules_rule_filtering_and_disabled_defaults() {
         let config = UserConfig {
             disabled_default_rules: vec!["trailing-number".to_string()],
-            issue_rules: vec![RawIssueRule {
-                name: "redmine".to_string(),
-                pattern: r"(?i)redmine[-_](?P<id>\d+)".to_string(),
-                platform: Some("redmine".to_string()),
-            }],
+            disabled_rules: vec!["disabled-redmine".to_string()],
+            issue_rules: vec![
+                RawIssueRule {
+                    name: "redmine".to_string(),
+                    pattern: r"(?i)redmine[-_](?P<id>\d+)".to_string(),
+                    platform: Some("redmine".to_string()),
+                },
+                RawIssueRule {
+                    name: "disabled-redmine".to_string(),
+                    pattern: r"(?i)disabled[-_](?P<id>\d+)".to_string(),
+                    platform: Some("redmine".to_string()),
+                },
+            ],
             ..UserConfig::default()
         };
 
@@ -172,6 +183,11 @@ mod tests {
         let err = extract_issue("feature/login-789", &config, None).unwrap_err();
         assert!(
             matches!(err, IssueJumperError::NoMatchingRule(branch) if branch == "feature/login-789")
+        );
+
+        let err = extract_issue("feature/disabled-42", &config, None).unwrap_err();
+        assert!(
+            matches!(err, IssueJumperError::NoMatchingRule(branch) if branch == "feature/disabled-42")
         );
     }
 

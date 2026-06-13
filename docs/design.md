@@ -438,6 +438,7 @@ Windows 全局路径为 `%APPDATA%\issue-jumper\config.json`。
   "fallback_platform": "redmine",
   "redmine_base_url": "https://redmine.company.com",
   "disabled_default_rules": ["trailing-number"],
+  "disabled_rules": ["global-redmine-prefix"],
   "issue_rules": [
     {
       "name": "redmine-prefix",
@@ -462,6 +463,7 @@ Windows 全局路径为 `%APPDATA%\issue-jumper\config.json`。
 | `fallback_platform` | string | 否 | 规则和 remote 都无法确定平台时使用的平台 |
 | `redmine_base_url` | string | Redmine 场景必填 | Redmine 不从 Git remote 自动推导 |
 | `disabled_default_rules` | string[] | 否 | 禁用内置分支匹配规则 |
+| `disabled_rules` | string[] | 否 | 禁用全局或项目自定义规则，项目配置可用它关闭全局规则 |
 | `issue_rules[].name` | string | 是 | 规则唯一名 |
 | `issue_rules[].pattern` | string | 是 | 必须包含 `(?P<id>...)` |
 | `issue_rules[].platform` | string | 否 | 匹配后强制指定平台 |
@@ -707,9 +709,6 @@ issue-jumper/
 ├── rust-toolchain.toml
 ├── Makefile
 ├── .editorconfig
-├── .github/
-│   └── workflows/
-│       └── ci.yml
 ├── README.md
 ├── README.zh-CN.md
 ├── AGENTS.md

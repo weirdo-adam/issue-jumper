@@ -92,7 +92,8 @@ Future editor or launcher integrations should follow this structure: add a narro
 
 ## Local Release
 
-Release artifacts are built and uploaded from a local machine, not from a GitHub Actions release job.
+Release artifacts are built and uploaded from a local machine with repository scripts.
+The public one-line installer currently targets the Apple Silicon macOS release archive. Build and publish additional targets from machines that can produce those artifacts.
 
 Package the current host target:
 

@@ -8,7 +8,7 @@ Issue Jumper resolves an issue URL from the current Git branch and opens it in t
 
 - Resolves common GitHub, GitLab, private GitLab, Bitbucket, and Gitee remotes.
 - Extracts issue IDs from branch names such as `feature/GH-123`, `fix/issue-456`, `101-add-login`, and `feature/ABC-456-login`.
-- Supports Redmine, Jira, GitLab work items, and custom URL templates through project config.
+- Supports Redmine, Jira, GitLab work items, and custom URL templates through global or project config.
 - Installs a Zed task and keymap binding with `issue-jumper install-zed`.
 - Provides `open`, `url`, and `doctor` commands for editor, terminal, and script usage.
 
@@ -20,9 +20,11 @@ Install the latest release and configure Zed:
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
 ```
 
-The installer detects the host platform, downloads the matching archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
+The installer downloads the Apple Silicon macOS archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
 
 Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced.
+
+Other platforms should build and package locally on that host with `scripts/package-release.sh`.
 
 Install with options:
 
@@ -80,6 +82,7 @@ Example Redmine override:
 {
   "fallback_platform": "redmine",
   "redmine_base_url": "https://redmine.example.com",
+  "disabled_rules": ["global-redmine-number"],
   "issue_rules": [
     {
       "name": "redmine-number",
@@ -144,7 +147,7 @@ Publish a local release artifact:
 scripts/publish-release.sh v0.1.0
 ```
 
-Release artifacts are built locally, not by a GitHub Actions release job.
+Release artifacts are built and uploaded locally with repository scripts.
 
 ## Documentation
 
