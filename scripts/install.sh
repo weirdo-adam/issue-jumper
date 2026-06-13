@@ -88,23 +88,34 @@ while [ "$#" -gt 0 ]; do
 done
 
 download_stdout() {
-  if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "$1"
-  elif command -v wget >/dev/null 2>&1; then
-    wget -qO- "$1"
-  else
-    die "curl or wget is required"
-  fi
+  tmp_base="${TMPDIR:-/tmp}"
+  tmp_file="$(mktemp "$tmp_base/issue-jumper.download.XXXXXX")" \
+    || die "could not create temporary file"
+
+  download_file "$1" "$tmp_file"
+  cat "$tmp_file"
+  rm -f "$tmp_file"
 }
 
 download_file() {
+  attempted=0
+
   if command -v curl >/dev/null 2>&1; then
-    curl -fsSL -o "$2" "$1"
-  elif command -v wget >/dev/null 2>&1; then
-    wget -qO "$2" "$1"
-  else
-    die "curl or wget is required"
+    attempted=1
+    if curl -fsSL --connect-timeout 15 -o "$2" "$1"; then
+      return 0
+    fi
   fi
+
+  if command -v wget >/dev/null 2>&1; then
+    attempted=1
+    if wget -qO "$2" "$1"; then
+      return 0
+    fi
+  fi
+
+  [ "$attempted" -eq 1 ] || die "curl or wget is required"
+  die "failed to download $1"
 }
 
 detect_target() {
