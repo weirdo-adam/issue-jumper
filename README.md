@@ -80,13 +80,16 @@ wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/script
 
 The installer downloads the supported Unix host archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
 
-Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced.
+Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced. Pass `--uninstall` to remove the copy installed by this script.
 
-Avoid mixing install sources when possible. If Homebrew and `~/.local/bin/issue-jumper` both exist, the first directory in `PATH` wins in the terminal, while Zed uses the absolute command path written by the last `install-zed` run. To move an existing setup to Homebrew, remove or de-prioritize the `~/.local/bin` copy, then run:
+Avoid mixing install sources when possible. If Homebrew and `~/.local/bin/issue-jumper` both exist, the first directory in `PATH` wins in the terminal, while Zed uses the absolute command path written by the last `install-zed` run. To move an existing setup to Homebrew:
 
 ```sh
+curl -fsSL https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --uninstall
 /opt/homebrew/bin/issue-jumper install-zed --force
 ```
+
+If `issue-jumper` is not found after a Homebrew install, add Homebrew to your shell `PATH` with `brew shellenv`, or use the full `/opt/homebrew/bin/issue-jumper` path.
 
 GitHub Releases publish prebuilt archives for Apple Silicon macOS, Linux x64, and Windows x64. The shell installer supports Apple Silicon macOS and Linux x64. Windows users can download the `.zip` asset and place `issue-jumper.exe` on `PATH`.
 
@@ -96,6 +99,7 @@ Install with options:
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key ctrl-shift-j
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --uninstall
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.0 --install-dir ~/.local/bin
 ```
 

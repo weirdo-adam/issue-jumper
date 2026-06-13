@@ -6,6 +6,7 @@ version="${VERSION:-}"
 key="${KEY:-alt alt}"
 install_zed="${INSTALL_ZED:-1}"
 force=1
+uninstall=0
 
 if [ -n "${INSTALL_DIR:-}" ]; then
   install_dir="$INSTALL_DIR"
@@ -21,6 +22,7 @@ fi
 usage() {
   cat <<'USAGE'
 Usage: scripts/install.sh [options]
+       scripts/install.sh --uninstall [--install-dir <dir>]
 
 Download a release archive, install issue-jumper, and install the Zed integration.
 Prebuilt release archives currently support Apple Silicon macOS and Linux x64.
@@ -32,6 +34,7 @@ Options:
   --force              Replace an existing Zed binding for the selected key. Default.
   --no-force           Fail instead of replacing an existing foreign Zed binding.
   --no-zed             Install only the CLI.
+  --uninstall          Remove issue-jumper from the install directory and exit.
   --repo <owner/name>  GitHub repository. Defaults to weirdo-adam/issue-jumper.
   -h, --help           Show this help.
 
@@ -49,7 +52,7 @@ die() {
   exit 1
 }
 
-warn_if_homebrew_install_exists() {
+homebrew_binary() {
   command -v brew >/dev/null 2>&1 || return 0
 
   brew_prefix="$(brew --prefix 2>/dev/null || true)"
@@ -58,14 +61,45 @@ warn_if_homebrew_install_exists() {
   brew_binary="$brew_prefix/bin/issue-jumper"
   [ -x "$brew_binary" ] || return 0
 
+  printf '%s\n' "$brew_binary"
+}
+
+warn_if_homebrew_install_exists() {
+  brew_binary="$(homebrew_binary)"
+  [ -n "$brew_binary" ] || return 0
+
   target_binary="$install_dir/issue-jumper"
   [ "$target_binary" = "$brew_binary" ] && return 0
 
   {
     echo "issue-jumper install: detected Homebrew issue-jumper at $brew_binary"
     echo "issue-jumper install: this script installs to $target_binary; keeping both can make PATH or Zed use a different copy than Homebrew upgrades."
+    echo "issue-jumper install: to remove the manual copy, run this installer again with --uninstall"
     echo "issue-jumper install: for a Homebrew-managed setup, run: $brew_binary install-zed --force"
   } >&2
+}
+
+uninstall_manual_install() {
+  target_binary="$install_dir/issue-jumper"
+
+  if [ -d "$target_binary" ]; then
+    die "$target_binary is a directory; remove it manually"
+  fi
+
+  if [ -e "$target_binary" ] || [ -L "$target_binary" ]; then
+    rm -f "$target_binary"
+    echo "Removed issue-jumper from $target_binary"
+  else
+    echo "No issue-jumper binary found at $target_binary"
+  fi
+
+  brew_binary="$(homebrew_binary)"
+  if [ -n "$brew_binary" ]; then
+    echo "Homebrew issue-jumper is available at $brew_binary"
+    echo "To point Zed at Homebrew, run: $brew_binary install-zed --force"
+  else
+    echo "To install with Homebrew, run: brew install weirdo-adam/tap/issue-jumper"
+  fi
 }
 
 while [ "$#" -gt 0 ]; do
@@ -97,6 +131,10 @@ while [ "$#" -gt 0 ]; do
       install_zed=0
       shift
       ;;
+    --uninstall)
+      uninstall=1
+      shift
+      ;;
     --repo)
       [ "$#" -ge 2 ] || die "--repo requires a value"
       repo="$2"
@@ -111,6 +149,11 @@ while [ "$#" -gt 0 ]; do
       ;;
   esac
 done
+
+if [ "$uninstall" -eq 1 ]; then
+  uninstall_manual_install
+  exit 0
+fi
 
 warn_if_homebrew_install_exists
 

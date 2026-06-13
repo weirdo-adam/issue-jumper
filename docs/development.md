@@ -90,6 +90,14 @@ The shortcut path stays on built-in Zed task/keymap primitives so the one-key br
 
 Future editor or launcher integrations should follow this structure: add a narrow installer command and target module, then call the same `open`, `url`, and `doctor` workflow rather than duplicating branch parsing or URL construction.
 
+Next integration candidates:
+
+- VS Code: provide task/keybinding setup that runs `issue-jumper open --repo ${workspaceFolder}`.
+- Cursor: reuse the VS Code-compatible integration path where possible.
+- Generic editors: document a minimal command example for tools that can bind a shortcut to a shell command.
+
+Keep these integrations as thin adapters around the CLI. Editor-specific code should write configuration or examples only; branch parsing, remote parsing, and URL generation stay in the shared core.
+
 ## Release Automation
 
 GitHub Actions owns the normal release path. Pushing a `v*` tag runs `.github/workflows/release.yml`, builds the release matrix, and uploads assets to the matching GitHub Release.
@@ -127,7 +135,7 @@ The tap formula is `Formula/issue-jumper.rb`. For a new release:
 
 The formula keeps `rust` as a build dependency for source fallback, but supported Homebrew installs should pour a bottle so users do not download Rust or LLVM during normal installation. The formula intentionally does not run `issue-jumper install-zed`, because Homebrew formulae should not mutate user editor configuration during install.
 
-If a user has both Homebrew and the one-command installer copy, keep the sources explicit instead of auto-removing files. The terminal uses the first `issue-jumper` in `PATH`, and Zed uses the absolute path written by the latest `install-zed` run. To move a macOS setup to Homebrew, run `/opt/homebrew/bin/issue-jumper install-zed --force` after installing from the tap.
+If a user has both Homebrew and the one-command installer copy, keep the sources explicit. The terminal uses the first `issue-jumper` in `PATH`, and Zed uses the absolute path written by the latest `install-zed` run. To move a macOS setup to Homebrew, run the one-command installer with `--uninstall`, then run `/opt/homebrew/bin/issue-jumper install-zed --force` after installing from the tap.
 
 ## Local Release
 
