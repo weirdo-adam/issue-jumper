@@ -1,86 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc" shape-rendering="crispEdges">
   <title id="title">Issue Jumper</title>
-  <desc id="desc">A black, white, and gray pixel-style banner for Issue Jumper.</desc>
+  <desc id="desc">A black, white, and gray terminal-style pixel banner for Issue Jumper.</desc>
   <rect width="1200" height="320" fill="#080808"/>
-  <path d="M0 0h1200v320H0z" fill="#0B0B0B"/>
-  <g opacity=".34" fill="#151515">
-    <rect x="0" y="0" width="1200" height="16"/>
-    <rect x="0" y="304" width="1200" height="16"/>
-    <rect x="112" y="48" width="16" height="16"/>
-    <rect x="224" y="256" width="16" height="16"/>
-    <rect x="704" y="48" width="16" height="16"/>
-    <rect x="896" y="256" width="16" height="16"/>
-    <rect x="1088" y="80" width="16" height="16"/>
-  </g>
+  <rect x="40" y="40" width="1120" height="240" fill="#101010"/>
+  <rect x="40" y="40" width="1120" height="16" fill="#1A1A1A"/>
+  <rect x="40" y="264" width="1120" height="16" fill="#050505"/>
 
   <g fill="#D9D9D9">
-    <rect x="92" y="88" width="14" height="128"/>
-    <rect x="106" y="144" width="34" height="14"/>
-    <rect x="140" y="130" width="14" height="14"/>
-    <rect x="154" y="116" width="46" height="14"/>
+    <rect x="96" y="94" width="12" height="120"/>
+    <rect x="108" y="148" width="30" height="12"/>
+    <rect x="138" y="136" width="12" height="12"/>
+    <rect x="150" y="124" width="48" height="12"/>
   </g>
   <g fill="#F2F2F2">
-    <rect x="80" y="76" width="38" height="38"/>
-    <rect x="80" y="132" width="38" height="38"/>
-    <rect x="80" y="204" width="38" height="38"/>
-    <rect x="186" y="102" width="38" height="38"/>
+    <rect x="84" y="82" width="36" height="36"/>
+    <rect x="84" y="136" width="36" height="36"/>
+    <rect x="84" y="202" width="36" height="36"/>
+    <rect x="186" y="112" width="36" height="36"/>
   </g>
-  <g fill="#0B0B0B">
-    <rect x="92" y="88" width="14" height="14"/>
-    <rect x="92" y="144" width="14" height="14"/>
-    <rect x="92" y="216" width="14" height="14"/>
-    <rect x="198" y="114" width="14" height="14"/>
-  </g>
-
-  <g fill="#E6E6E6">
-    <rect x="266" y="142" width="14" height="14"/>
-    <rect x="280" y="126" width="14" height="14"/>
-    <rect x="294" y="112" width="14" height="14"/>
-    <rect x="308" y="112" width="14" height="14"/>
-    <rect x="322" y="126" width="14" height="14"/>
-    <rect x="336" y="142" width="14" height="14"/>
+  <g fill="#101010">
+    <rect x="96" y="94" width="12" height="12"/>
+    <rect x="96" y="148" width="12" height="12"/>
+    <rect x="96" y="214" width="12" height="12"/>
+    <rect x="198" y="124" width="12" height="12"/>
   </g>
 
-  <text x="390" y="114" fill="#F5F5F5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="48" font-weight="800">Issue Jumper</text>
-  <text x="392" y="154" fill="#BDBDBD" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="600">Jump from a Git branch to its issue page</text>
+  <text x="280" y="104" fill="#F5F5F5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="46" font-weight="800">Issue Jumper</text>
+  <text x="282" y="142" fill="#BDBDBD" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600">offline branch-to-issue navigation for Zed and terminals</text>
+
+  <rect x="282" y="168" width="584" height="72" fill="#050505"/>
+  <rect x="282" y="168" width="584" height="8" fill="#2A2A2A"/>
+  <text x="306" y="200" fill="#8A8A8A" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" font-weight="700">$ issue-jumper url --print-url</text>
+  <text x="306" y="226" fill="#F2F2F2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" font-weight="700">git branch  -&gt;  issue #123  -&gt;  browser</text>
 
   <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="800">
-    <rect x="392" y="192" width="76" height="32" fill="#F2F2F2"/>
-    <text x="415" y="213" fill="#0B0B0B">CLI</text>
-    <rect x="480" y="192" width="76" height="32" fill="#8A8A8A"/>
-    <text x="503" y="213" fill="#0B0B0B">ZED</text>
-    <rect x="568" y="192" width="116" height="32" fill="#D9D9D9"/>
-    <text x="591" y="213" fill="#0B0B0B">OFFLINE</text>
-  </g>
-
-  <g opacity=".9" fill="#CFCFCF">
-    <rect x="820" y="118" width="14" height="14"/>
-    <rect x="834" y="102" width="14" height="14"/>
-    <rect x="848" y="86" width="14" height="14"/>
-    <rect x="862" y="86" width="14" height="14"/>
-    <rect x="876" y="102" width="14" height="14"/>
-    <rect x="890" y="118" width="14" height="14"/>
-    <rect x="904" y="134" width="14" height="14"/>
-    <rect x="918" y="150" width="14" height="14"/>
-    <rect x="932" y="150" width="14" height="14"/>
-    <rect x="946" y="134" width="14" height="14"/>
-    <rect x="960" y="118" width="14" height="14"/>
-    <rect x="974" y="102" width="14" height="14"/>
-    <rect x="988" y="102" width="14" height="14"/>
-  </g>
-  <g opacity=".56" fill="#6F6F6F">
-    <rect x="792" y="118" width="14" height="14"/>
-    <rect x="1016" y="118" width="14" height="14"/>
-  </g>
-
-  <g>
-    <rect x="1050" y="64" width="96" height="128" fill="#D9D9D9"/>
-    <rect x="1050" y="64" width="16" height="16" fill="#0B0B0B"/>
-    <rect x="1130" y="64" width="16" height="16" fill="#0B0B0B"/>
-    <rect x="1050" y="176" width="16" height="16" fill="#0B0B0B"/>
-    <rect x="1130" y="176" width="16" height="16" fill="#0B0B0B"/>
-    <rect x="1080" y="100" width="42" height="10" fill="#0B0B0B"/>
-    <rect x="1080" y="126" width="32" height="10" fill="#0B0B0B"/>
-    <rect x="1080" y="152" width="50" height="10" fill="#8A8A8A"/>
+    <rect x="902" y="92" width="94" height="32" fill="#F2F2F2"/>
+    <text x="925" y="113" fill="#101010">LOCAL</text>
+    <rect x="902" y="140" width="94" height="32" fill="#8A8A8A"/>
+    <text x="929" y="161" fill="#101010">ZED</text>
+    <rect x="902" y="188" width="150" height="32" fill="#D9D9D9"/>
+    <text x="927" y="209" fill="#101010">NO TELEMETRY</text>
   </g>
 </svg>
