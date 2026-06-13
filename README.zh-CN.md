@@ -26,6 +26,24 @@
 
 Issue Jumper 用于从当前 Git 分支解析 Issue URL，并使用系统默认浏览器打开。项目采用约定优先的 CLI 设计，并提供 Zed 安装器，用于在编辑器工作区中通过一个快捷键跳转到当前分支对应的 Issue。
 
+在 Zed 中按 Ctrl+J，或在终端运行 `issue-jumper open`，即可从 `feature/GH-123-add-login` 这类分支跳转到对应 Issue 页面。
+
+## 快速开始
+
+安装最新 Release，并配置默认 Zed 快捷键：
+
+```sh
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
+```
+
+然后使用内置入口：
+
+```sh
+issue-jumper open --repo /path/to/repo
+issue-jumper url --repo /path/to/repo --print-url
+issue-jumper doctor --repo /path/to/repo
+```
+
 ## 功能
 
 - 识别常见 GitHub、GitLab、私有 GitLab、Bitbucket 和 Gitee remote。
@@ -59,10 +77,10 @@ wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/script
 带参数安装：
 
 ```sh
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key cmd-alt-j
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key ctrl-shift-j
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.1 --install-dir ~/.local/bin
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.2 --install-dir ~/.local/bin
 ```
 
 本地开发时，从源码构建并安装 Zed 集成：
@@ -79,15 +97,15 @@ scripts/install-zed.sh
 | --- | --- |
 | Task label | `Issue Jumper: Open Current Issue` |
 | Task command | `issue-jumper open --repo $ZED_WORKTREE_ROOT` |
-| 默认 Zed keymap 项 | `alt-j` |
+| 默认 Zed keymap 项 | `ctrl-j` |
 | 手动入口 | Command Palette -> `task: spawn` -> `Issue Jumper: Open Current Issue` |
 
-这里记录的是写入 Zed `keymap.json` 的按键字符串。Zed 使用 `alt-` 表示 Alt/Option 修饰键；在 macOS 上，`alt-j` 对应按下 Option+J。不同平台或键盘布局需要其他绑定时，使用 `--key <key>` 指定。
+这里记录的是写入 Zed `keymap.json` 的按键字符串。不同平台或键盘布局需要其他绑定时，使用 `--key <key>` 指定。
 
 选项：
 
 ```sh
-issue-jumper install-zed --key cmd-alt-j
+issue-jumper install-zed --key ctrl-shift-j
 issue-jumper install-zed --force
 issue-jumper install-zed --print
 ```
@@ -168,13 +186,13 @@ sh -n scripts/install.sh
 构建本地 Release 压缩包：
 
 ```sh
-scripts/package-release.sh --version v0.1.1
+scripts/package-release.sh --version v0.1.2
 ```
 
 发布本地 Release 产物：
 
 ```sh
-scripts/publish-release.sh v0.1.1
+scripts/publish-release.sh v0.1.2
 ```
 
 Release 产物通过仓库脚本在本地构建并上传。

@@ -73,7 +73,7 @@ fn binary_installs_zed_config_into_temp_home() {
 
     assert!(tasks.contains("Issue Jumper: Open Current Issue"));
     assert!(tasks.contains("issue-jumper"));
-    assert!(keymap.contains("alt-j"));
+    assert!(keymap.contains("ctrl-j"));
 }
 
 #[test]

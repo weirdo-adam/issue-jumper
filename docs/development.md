@@ -7,7 +7,7 @@ Issue Jumper follows convention over configuration:
 - Default branch rules should cover common GitHub, GitLab, Redmine-style, Jira-style, and numeric branch names.
 - Private GitLab hosts such as `gitlab.example.com` should work without custom platform config.
 - Project config is optional and reserved for overrides such as Redmine base URLs, Jira templates, or GitLab work item URLs.
-- Zed integration uses tasks and keymaps; slash commands are not the target UI for v0.1.1.
+- Zed integration uses tasks and keymaps; slash commands are not the target UI for v0.1.2.
 - Keep the CLI core editor-neutral. Target-specific setup belongs in focused `install-*` commands such as `install-zed`.
 
 ## Project Structure
@@ -68,7 +68,7 @@ It records representative GitLab, Redmine, and GitHub issue URLs for manual vali
 
 ## Zed Integration Notes
 
-v0.1.1 installs a task named `Issue Jumper: Open Current Issue` and binds a user-selected key to `task::Spawn`.
+v0.1.2 installs a task named `Issue Jumper: Open Current Issue` and binds a user-selected key to `task::Spawn`.
 
 Use the one-command installer during local setup:
 
@@ -98,19 +98,19 @@ The public one-line installer currently targets the Apple Silicon macOS release 
 Package the current host target:
 
 ```sh
-scripts/package-release.sh --version v0.1.1
+scripts/package-release.sh --version v0.1.2
 ```
 
 Package a specific target:
 
 ```sh
-scripts/package-release.sh --target aarch64-apple-darwin --version v0.1.1
+scripts/package-release.sh --target aarch64-apple-darwin --version v0.1.2
 ```
 
 Build and upload to GitHub Releases:
 
 ```sh
-scripts/publish-release.sh v0.1.1
+scripts/publish-release.sh v0.1.2
 ```
 
 Run the publish script once per local target you want to maintain in the release assets.

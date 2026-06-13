@@ -26,6 +26,24 @@
 
 Issue Jumper resolves an issue URL from the current Git branch and opens it in the system browser. It is a convention-first CLI with a Zed installer for one-key navigation from an editor workspace.
 
+Press Ctrl+J in Zed, or run `issue-jumper open`, to jump from a branch such as `feature/GH-123-add-login` to the matching issue page.
+
+## Quick Start
+
+Install the latest release and configure the default Zed shortcut:
+
+```sh
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
+```
+
+Then use one of the built-in entry points:
+
+```sh
+issue-jumper open --repo /path/to/repo
+issue-jumper url --repo /path/to/repo --print-url
+issue-jumper doctor --repo /path/to/repo
+```
+
 ## Features
 
 - Resolves common GitHub, GitLab, private GitLab, Bitbucket, and Gitee remotes.
@@ -59,10 +77,10 @@ Other platforms should build and package locally on that host with `scripts/pack
 Install with options:
 
 ```sh
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key cmd-alt-j
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key ctrl-shift-j
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.1 --install-dir ~/.local/bin
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.2 --install-dir ~/.local/bin
 ```
 
 For local development, build from source and install the Zed integration:
@@ -79,15 +97,15 @@ scripts/install-zed.sh
 | --- | --- |
 | Task label | `Issue Jumper: Open Current Issue` |
 | Task command | `issue-jumper open --repo $ZED_WORKTREE_ROOT` |
-| Default Zed keymap entry | `alt-j` |
+| Default Zed keymap entry | `ctrl-j` |
 | Manual entry | Command Palette -> `task: spawn` -> `Issue Jumper: Open Current Issue` |
 
-The default is documented as the key string written to Zed `keymap.json`. Zed uses `alt-` for the Alt/Option modifier; on macOS, `alt-j` is pressed as Option+J. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
+The default is documented as the key string written to Zed `keymap.json`. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
 
 Options:
 
 ```sh
-issue-jumper install-zed --key cmd-alt-j
+issue-jumper install-zed --key ctrl-shift-j
 issue-jumper install-zed --force
 issue-jumper install-zed --print
 ```
@@ -168,13 +186,13 @@ sh -n scripts/install.sh
 Build a local release archive:
 
 ```sh
-scripts/package-release.sh --version v0.1.1
+scripts/package-release.sh --version v0.1.2
 ```
 
 Publish a local release artifact:
 
 ```sh
-scripts/publish-release.sh v0.1.1
+scripts/publish-release.sh v0.1.2
 ```
 
 Release artifacts are built and uploaded locally with repository scripts.

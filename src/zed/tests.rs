@@ -15,6 +15,8 @@ fn installs_task_and_keymap_into_empty_config_dir() {
     assert_eq!(tasks[0]["label"], TASK_LABEL);
     assert_eq!(tasks[0]["args"][2], "$ZED_WORKTREE_ROOT");
     assert_eq!(keymaps.len(), 1);
+    assert_eq!(keymaps[0]["context"], "Editor || Workspace");
+    assert_eq!(keymaps[0]["use_key_equivalents"], true);
     assert_eq!(keymaps[0]["bindings"]["alt-i"][0], "task::Spawn");
 }
 
@@ -53,8 +55,85 @@ fn updates_existing_issue_jumper_binding() {
     install_zed_into_dir(&dir, task, keymap, "cmd-i", false).unwrap();
 
     let keymaps = read_json_array(&dir.join("keymap.json")).unwrap();
+    assert_eq!(keymaps.len(), 1);
+    assert_eq!(keymaps[0]["context"], "Editor || Workspace");
+    assert_eq!(keymaps[0]["use_key_equivalents"], true);
+    assert_eq!(keymaps[0]["bindings"]["cmd-i"][1]["task_name"], TASK_LABEL);
+}
+
+#[test]
+fn updates_existing_workspace_issue_jumper_binding_to_global_context() {
+    let dir = temp_dir("update-binding-context");
+    fs::create_dir_all(&dir).unwrap();
+    fs::write(
+        dir.join("keymap.json"),
+        format!(
+            r#"[{{"context":"Workspace","bindings":{{"alt-i":["task::Spawn",{{"task_name":"{}"}}]}}}}]"#,
+            TASK_LABEL
+        ),
+    )
+    .unwrap();
+    let task = task_template(Path::new("/usr/local/bin/issue-jumper"));
+    let keymap = keymap_template("alt-i");
+
+    install_zed_into_dir(&dir, task, keymap, "alt-i", false).unwrap();
+
+    let keymaps = read_json_array(&dir.join("keymap.json")).unwrap();
+    assert_eq!(keymaps.len(), 1);
+    assert_eq!(keymaps[0]["context"], "Editor || Workspace");
+    assert_eq!(keymaps[0]["use_key_equivalents"], true);
+    assert_eq!(keymaps[0]["bindings"]["alt-i"][1]["task_name"], TASK_LABEL);
+}
+
+#[test]
+fn preserves_neighbor_bindings_when_moving_issue_jumper_keymap_context() {
+    let dir = temp_dir("preserve-neighbor-binding");
+    fs::create_dir_all(&dir).unwrap();
+    fs::write(
+        dir.join("keymap.json"),
+        format!(
+            r#"[{{"context":"Workspace","bindings":{{"alt-i":["task::Spawn",{{"task_name":"{}"}}],"cmd-k":"workspace::ToggleLeftDock"}}}}]"#,
+            TASK_LABEL
+        ),
+    )
+    .unwrap();
+    let task = task_template(Path::new("/usr/local/bin/issue-jumper"));
+    let keymap = keymap_template("alt-i");
+
+    install_zed_into_dir(&dir, task, keymap, "alt-i", false).unwrap();
+
+    let keymaps = read_json_array(&dir.join("keymap.json")).unwrap();
     assert_eq!(keymaps.len(), 2);
-    assert_eq!(keymaps[1]["bindings"]["cmd-i"][1]["task_name"], TASK_LABEL);
+    assert_eq!(keymaps[0]["context"], "Workspace");
+    assert!(keymaps[0]["bindings"].get("alt-i").is_none());
+    assert_eq!(keymaps[0]["bindings"]["cmd-k"], "workspace::ToggleLeftDock");
+    assert_eq!(keymaps[1]["context"], "Editor || Workspace");
+    assert_eq!(keymaps[1]["use_key_equivalents"], true);
+    assert_eq!(keymaps[1]["bindings"]["alt-i"][1]["task_name"], TASK_LABEL);
+}
+
+#[test]
+fn removes_old_issue_jumper_binding_when_installing_new_key() {
+    let dir = temp_dir("remove-old-binding");
+    fs::create_dir_all(&dir).unwrap();
+    fs::write(
+        dir.join("keymap.json"),
+        format!(
+            r#"[{{"context":"Workspace","bindings":{{"alt-i":["task::Spawn",{{"task_name":"{}"}}],"cmd-k":"workspace::ToggleLeftDock"}}}}]"#,
+            TASK_LABEL
+        ),
+    )
+    .unwrap();
+    let task = task_template(Path::new("/usr/local/bin/issue-jumper"));
+    let keymap = keymap_template("ctrl-i");
+
+    install_zed_into_dir(&dir, task, keymap, "ctrl-i", false).unwrap();
+
+    let keymaps = read_json_array(&dir.join("keymap.json")).unwrap();
+    assert_eq!(keymaps.len(), 2);
+    assert!(keymaps[0]["bindings"].get("alt-i").is_none());
+    assert_eq!(keymaps[0]["bindings"]["cmd-k"], "workspace::ToggleLeftDock");
+    assert_eq!(keymaps[1]["bindings"]["ctrl-i"][1]["task_name"], TASK_LABEL);
 }
 
 #[test]
@@ -284,6 +363,8 @@ fn force_overwrites_foreign_key_binding() {
     install_zed_into_dir(&dir, task, keymap, "alt-i", true).unwrap();
 
     let keymaps = read_json_array(&dir.join("keymap.json")).unwrap();
+    assert_eq!(keymaps[0]["context"], "Editor || Workspace");
+    assert_eq!(keymaps[0]["use_key_equivalents"], true);
     assert_eq!(keymaps[0]["bindings"]["alt-i"][0], "task::Spawn");
     assert!(dir.join("keymap.json.bak").exists());
 }

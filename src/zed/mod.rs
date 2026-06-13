@@ -104,10 +104,11 @@ fn task_template(executable: &Path) -> Value {
 
 fn keymap_template(key: &str) -> Value {
     json!({
-        "context": "Workspace",
+        "context": "Editor || Workspace",
         "bindings": {
             key: ["task::Spawn", { "task_name": TASK_LABEL }]
-        }
+        },
+        "use_key_equivalents": true
     })
 }
 
@@ -145,34 +146,61 @@ fn is_issue_jumper_command(command: &str) -> bool {
 }
 
 fn merge_keymap(keymaps: &mut Vec<Value>, keymap: Value, key: &str, force: bool) -> Result<()> {
-    let mut existing_binding = None;
-
-    for (index, group) in keymaps.iter().enumerate() {
-        if let Some(binding) = group
+    if let Some(binding) = keymaps.iter().find_map(|group| {
+        group
             .get("bindings")
             .and_then(Value::as_object)
             .and_then(|bindings| bindings.get(key))
-        {
-            existing_binding = Some((index, binding.clone()));
-            break;
+    }) {
+        if !is_issue_jumper_binding(binding) && !force {
+            return Err(IssueJumperError::ZedKeyConflict(key.to_string()));
         }
     }
 
-    if let Some((index, binding)) = existing_binding {
-        if !is_issue_jumper_binding(&binding) && !force {
-            return Err(IssueJumperError::ZedKeyConflict(key.to_string()));
-        }
+    remove_issue_jumper_bindings_except(keymaps, key);
 
-        if let Some(bindings) = keymaps[index]
+    if let Some(index) = keymaps.iter().position(|group| {
+        group
+            .get("bindings")
+            .and_then(Value::as_object)
+            .is_some_and(|bindings| bindings.contains_key(key))
+    }) {
+        let remaining_bindings = if let Some(bindings) = keymaps[index]
             .get_mut("bindings")
             .and_then(Value::as_object_mut)
         {
-            bindings.insert(key.to_string(), keymap["bindings"][key].clone());
+            bindings.remove(key);
+            bindings.len()
+        } else {
+            0
+        };
+
+        if remaining_bindings == 0 {
+            keymaps[index] = keymap;
+        } else {
+            keymaps.push(keymap);
         }
     } else {
         keymaps.push(keymap);
     }
     Ok(())
+}
+
+fn remove_issue_jumper_bindings_except(keymaps: &mut Vec<Value>, key: &str) {
+    for group in keymaps.iter_mut() {
+        if let Some(bindings) = group.get_mut("bindings").and_then(Value::as_object_mut) {
+            bindings.retain(|binding_key, binding| {
+                binding_key == key || !is_issue_jumper_binding(binding)
+            });
+        }
+    }
+
+    keymaps.retain(|group| {
+        group
+            .get("bindings")
+            .and_then(Value::as_object)
+            .is_none_or(|bindings| !bindings.is_empty())
+    });
 }
 
 fn is_issue_jumper_binding(value: &Value) -> bool {

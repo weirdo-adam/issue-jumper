@@ -2,7 +2,7 @@ use crate::error::{IssueJumperError, Result};
 use crate::zed::{InstallOptions, install_zed};
 
 pub fn run(args: &[String]) -> Result<()> {
-    let mut key = "alt-j".to_string();
+    let mut key = "ctrl-j".to_string();
     let mut force = false;
     let mut print = false;
     let mut iter = args.iter();
