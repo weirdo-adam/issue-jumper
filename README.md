@@ -17,11 +17,11 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-0F3D3E?style=flat-square"></a>
-  <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-D95B43?style=flat-square">
-  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-F7C948?style=flat-square">
-  <img alt="Privacy: local only" src="https://img.shields.io/badge/privacy-local%20only-34A853?style=flat-square">
-  <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-2C5F5E?style=flat-square">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-111111?style=flat-square"></a>
+  <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-4A4A4A?style=flat-square">
+  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-6F6F6F?style=flat-square">
+  <img alt="Privacy: local only" src="https://img.shields.io/badge/privacy-local%20only-2F2F2F?style=flat-square">
+  <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-555555?style=flat-square">
 </p>
 
 Issue Jumper resolves an issue URL from the current Git branch and opens it in the system browser. It is a convention-first CLI with a Zed installer for one-key navigation from an editor workspace.

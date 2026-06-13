@@ -17,11 +17,11 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-0F3D3E?style=flat-square"></a>
-  <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-D95B43?style=flat-square">
-  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-F7C948?style=flat-square">
-  <img alt="Privacy: local only" src="https://img.shields.io/badge/privacy-local%20only-34A853?style=flat-square">
-  <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-2C5F5E?style=flat-square">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-111111?style=flat-square"></a>
+  <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-4A4A4A?style=flat-square">
+  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-6F6F6F?style=flat-square">
+  <img alt="Privacy: local only" src="https://img.shields.io/badge/privacy-local%20only-2F2F2F?style=flat-square">
+  <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-555555?style=flat-square">
 </p>
 
 Issue Jumper 用于从当前 Git 分支解析 Issue URL，并使用系统默认浏览器打开。项目采用约定优先的 CLI 设计，并提供 Zed 安装器，用于在编辑器工作区中通过一个快捷键跳转到当前分支对应的 Issue。
