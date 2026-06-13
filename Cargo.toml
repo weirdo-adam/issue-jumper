@@ -1,0 +1,27 @@
+[package]
+name = "issue-jumper"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Jump from the current Git branch to its issue page."
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/weirdo-adam/issue-jumper"
+homepage = "https://github.com/weirdo-adam/issue-jumper"
+keywords = ["issue", "git", "gitlab", "redmine", "zed"]
+categories = ["command-line-utilities", "development-tools"]
+exclude = [
+  "/.github",
+  "/AGENTS.md",
+  "/dist",
+  "/local",
+  "/target",
+  "/*.profdata",
+  "/*.profraw",
+]
+
+[dependencies]
+json5 = "0.4"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

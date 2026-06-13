@@ -1,0 +1,159 @@
+#!/usr/bin/env sh
+set -eu
+
+repo="${ISSUE_JUMPER_REPO:-weirdo-adam/issue-jumper}"
+version="${VERSION:-}"
+key="${KEY:-alt-j}"
+install_zed="${INSTALL_ZED:-1}"
+force=0
+
+if [ -n "${INSTALL_DIR:-}" ]; then
+  install_dir="$INSTALL_DIR"
+else
+  home="${HOME:-}"
+  if [ -z "$home" ]; then
+    echo "issue-jumper install: HOME is not set; pass --install-dir." >&2
+    exit 1
+  fi
+  install_dir="$home/.local/bin"
+fi
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/install.sh [options]
+
+Download a release archive, install issue-jumper, and install the Zed integration.
+
+Options:
+  --version <tag>      Release tag to install. Defaults to latest.
+  --install-dir <dir>  Install directory. Defaults to ~/.local/bin.
+  --key <key>          Zed keybinding. Defaults to alt-j.
+  --force              Replace an existing Zed binding for the selected key.
+  --no-zed             Install only the CLI.
+  --repo <owner/name>  GitHub repository. Defaults to weirdo-adam/issue-jumper.
+  -h, --help           Show this help.
+
+Environment:
+  VERSION              Release tag to install.
+  INSTALL_DIR          Install directory.
+  KEY                  Zed keybinding.
+  INSTALL_ZED=0        Install only the CLI.
+  ISSUE_JUMPER_REPO    GitHub repository.
+USAGE
+}
+
+die() {
+  echo "issue-jumper install: $*" >&2
+  exit 1
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --version)
+      [ "$#" -ge 2 ] || die "--version requires a value"
+      version="$2"
+      shift 2
+      ;;
+    --install-dir)
+      [ "$#" -ge 2 ] || die "--install-dir requires a value"
+      install_dir="$2"
+      shift 2
+      ;;
+    --key)
+      [ "$#" -ge 2 ] || die "--key requires a value"
+      key="$2"
+      shift 2
+      ;;
+    --force)
+      force=1
+      shift
+      ;;
+    --no-zed)
+      install_zed=0
+      shift
+      ;;
+    --repo)
+      [ "$#" -ge 2 ] || die "--repo requires a value"
+      repo="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "unknown argument $1"
+      ;;
+  esac
+done
+
+download_stdout() {
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$1"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO- "$1"
+  else
+    die "curl or wget is required"
+  fi
+}
+
+download_file() {
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL -o "$2" "$1"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO "$2" "$1"
+  else
+    die "curl or wget is required"
+  fi
+}
+
+detect_target() {
+  os="$(uname -s 2>/dev/null || true)"
+  arch="$(uname -m 2>/dev/null || true)"
+
+  case "$os:$arch" in
+    Darwin:arm64|Darwin:aarch64) echo "aarch64-apple-darwin" ;;
+    Darwin:x86_64) echo "x86_64-apple-darwin" ;;
+    Linux:x86_64|Linux:amd64) echo "x86_64-unknown-linux-gnu" ;;
+    *)
+      die "unsupported platform $os/$arch"
+      ;;
+  esac
+}
+
+if [ -z "$version" ]; then
+  version="$(
+    download_stdout "https://api.github.com/repos/$repo/releases/latest" \
+      | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' \
+      | head -n 1
+  )"
+  [ -n "$version" ] || die "could not resolve latest release tag"
+fi
+
+target="$(detect_target)"
+archive="issue-jumper-${version}-${target}.tar.gz"
+archive_url="https://github.com/$repo/releases/download/$version/$archive"
+tmp_base="${TMPDIR:-/tmp}"
+tmp_dir="$(mktemp -d "$tmp_base/issue-jumper.XXXXXX")"
+trap 'rm -rf "$tmp_dir"' EXIT INT HUP TERM
+
+download_file "$archive_url" "$tmp_dir/$archive"
+tar -xzf "$tmp_dir/$archive" -C "$tmp_dir"
+
+binary="$tmp_dir/issue-jumper-${version}-${target}/issue-jumper"
+[ -x "$binary" ] || die "release archive does not contain issue-jumper"
+
+mkdir -p "$install_dir"
+install -m 0755 "$binary" "$install_dir/issue-jumper"
+
+echo "Installed issue-jumper $version to $install_dir/issue-jumper"
+
+if [ "$install_zed" != "0" ]; then
+  if [ "$force" -eq 1 ]; then
+    "$install_dir/issue-jumper" install-zed --key "$key" --force
+  else
+    "$install_dir/issue-jumper" install-zed --key "$key"
+  fi
+else
+  echo "Skipped Zed integration."
+fi
