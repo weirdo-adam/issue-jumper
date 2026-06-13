@@ -263,6 +263,8 @@ issue-jumper install-zed
 | task label 已存在但 command 不同 | 不覆盖，提示手动处理 |
 | JSON 格式非法 | 不写入，报告文件路径和解析错误 |
 
+公开一键安装脚本和本地源码安装脚本默认调用 `install-zed --force`，用于支持重复安装时覆盖并刷新所选快捷键；直接运行 `issue-jumper install-zed` 仍保留不覆盖外部快捷键的安全默认值。
+
 ### 4.5 手动配置兜底
 
 如果安装器无法安全合并配置，`install-zed --print` 输出 task/keymap 片段，由用户手动复制到 Zed 配置。
@@ -689,7 +691,7 @@ pub enum IssueJumperError {
 | 验收项 | 通过标准 |
 | --- | --- |
 | `install-zed` | 正确写入或更新 tasks/keymap，并生成备份 |
-| 快捷键触发 | 在 Zed Workspace 中按 `alt-j`（macOS Option+J）会执行 task |
+| 快捷键触发 | 在 Zed Workspace 中触发 `alt-j` keymap 绑定会执行 task |
 | worktree 传参 | CLI 收到 `$ZED_WORKTREE_ROOT` 对应的项目路径 |
 | 成功体验 | 浏览器打开 Issue URL，Zed 焦点不被明显打断 |
 | 失败体验 | task 失败并保留可读错误输出 |

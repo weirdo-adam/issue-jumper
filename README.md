@@ -20,12 +20,15 @@ Install the latest release and configure Zed:
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
 ```
 
-The installer detects the host platform, downloads the matching archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed`.
+The installer detects the host platform, downloads the matching archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
+
+Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced.
 
 Install with options:
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key cmd-alt-j
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.0 --install-dir ~/.local/bin
 ```
@@ -44,8 +47,10 @@ scripts/install-zed.sh
 | --- | --- |
 | Task label | `Issue Jumper: Open Current Issue` |
 | Task command | `issue-jumper open --repo $ZED_WORKTREE_ROOT` |
-| Default key | `alt-j` (`Option+J` on macOS) |
+| Default Zed keymap entry | `alt-j` |
 | Manual entry | Command Palette -> `task: spawn` -> `Issue Jumper: Open Current Issue` |
+
+The default is documented as the key string written to Zed `keymap.json`. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
 
 Options:
 
@@ -54,6 +59,8 @@ issue-jumper install-zed --key cmd-alt-j
 issue-jumper install-zed --force
 issue-jumper install-zed --print
 ```
+
+`scripts/install.sh` and `scripts/install-zed.sh` pass `--force` by default for repeatable installs. Direct `issue-jumper install-zed` keeps key conflicts explicit unless `--force` is passed.
 
 The installer writes the absolute CLI path into the Zed task to avoid shell `PATH` differences between Zed and an interactive terminal.
 

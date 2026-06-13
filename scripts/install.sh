@@ -5,7 +5,7 @@ repo="${ISSUE_JUMPER_REPO:-weirdo-adam/issue-jumper}"
 version="${VERSION:-}"
 key="${KEY:-alt-j}"
 install_zed="${INSTALL_ZED:-1}"
-force=0
+force=1
 
 if [ -n "${INSTALL_DIR:-}" ]; then
   install_dir="$INSTALL_DIR"
@@ -28,7 +28,8 @@ Options:
   --version <tag>      Release tag to install. Defaults to latest.
   --install-dir <dir>  Install directory. Defaults to ~/.local/bin.
   --key <key>          Zed keybinding. Defaults to alt-j.
-  --force              Replace an existing Zed binding for the selected key.
+  --force              Replace an existing Zed binding for the selected key. Default.
+  --no-force           Fail instead of replacing an existing foreign Zed binding.
   --no-zed             Install only the CLI.
   --repo <owner/name>  GitHub repository. Defaults to weirdo-adam/issue-jumper.
   -h, --help           Show this help.
@@ -66,6 +67,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --force)
       force=1
+      shift
+      ;;
+    --no-force)
+      force=0
       shift
       ;;
     --no-zed)

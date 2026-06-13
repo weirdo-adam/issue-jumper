@@ -76,7 +76,7 @@ Use the one-command installer during local setup:
 scripts/install-zed.sh
 ```
 
-Pass `--key <key>` to choose a different keybinding, `--force` to replace an existing binding, or `--print` to preview the Zed config snippets.
+Pass `--key <key>` to choose a different keybinding, `--force` to replace an existing binding, or `--print` to preview the Zed config snippets. The public one-command installer and local source installer run `install-zed --force` by default so repeated installs refresh the selected binding; pass `--no-force` to the installer when conflicts should be preserved.
 
 The same task can be run from the Zed Command Palette by selecting `task: spawn` and then `Issue Jumper: Open Current Issue`. Current public Zed extensions do not expose an arbitrary custom action registration API for adding `issue: open` directly to the Command Palette. Zed slash commands are surfaced in the Agent UI, which is not the desired entry point for this project.
 
