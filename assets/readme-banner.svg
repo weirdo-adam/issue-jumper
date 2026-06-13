@@ -1,19 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
   <title id="title">Issue Jumper</title>
-  <desc id="desc">A minimal black banner showing a Git branch jumping toward an issue card.</desc>
+  <desc id="desc">A minimal black banner showing a balanced Git branch jumping toward an issue card with a wave path.</desc>
   <rect width="1200" height="320" fill="#111111"/>
   <rect x="72" y="74" width="172" height="132" rx="30" fill="#181818"/>
-  <path d="M108 102v80" fill="none" stroke="#E8EAED" stroke-width="8" stroke-linecap="round"/>
-  <path d="M108 142c15 0 20-22 36-22" fill="none" stroke="#E8EAED" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="108" cy="102" r="8" fill="#4285F4"/>
-  <circle cx="108" cy="142" r="8" fill="#34A853"/>
-  <circle cx="108" cy="182" r="8" fill="#FBBC04"/>
-  <circle cx="144" cy="120" r="7" fill="#EA4335"/>
-  <path d="M154 135c11-21 29-21 40 0" fill="none" stroke="#4285F4" stroke-width="9" stroke-linecap="round"/>
-  <path d="M174 154c7 16 19 16 27 0" fill="none" stroke="#FBBC04" stroke-width="9" stroke-linecap="round"/>
-  <path d="M170 178c6 4 16 4 22 0" fill="none" stroke="#EA4335" stroke-width="6" stroke-linecap="round"/>
-  <rect x="210" y="108" width="36" height="52" rx="10" fill="#E8EAED"/>
-  <path d="M220 124h15M220 136h10" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
+  <path d="M106 102v80" fill="none" stroke="#E8EAED" stroke-width="8" stroke-linecap="round"/>
+  <path d="M106 142c15 0 21-22 37-22" fill="none" stroke="#E8EAED" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="106" cy="102" r="8" fill="#4285F4"/>
+  <circle cx="106" cy="142" r="8" fill="#34A853"/>
+  <circle cx="106" cy="182" r="8" fill="#FBBC04"/>
+  <circle cx="143" cy="120" r="7" fill="#EA4335"/>
+  <path d="M154 141c7-14 16-14 23 0s16 14 23 0" fill="none" stroke="#4285F4" stroke-width="9" stroke-linecap="round"/>
+  <rect x="212" y="101" width="36" height="64" rx="10" fill="#E8EAED"/>
+  <path d="M222 118h15M222 132h10" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
   <text x="278" y="120" fill="#FFFFFF" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="50" font-weight="800">Issue Jumper</text>
   <text x="280" y="165" fill="#BDC1C6" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="24" font-weight="500">Jump from a Git branch to its issue page</text>
   <rect x="280" y="206" width="86" height="34" rx="7" fill="#4285F4"/>
@@ -22,4 +20,10 @@
   <text x="401" y="229" fill="#FFFFFF" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700">Zed</text>
   <rect x="476" y="206" width="122" height="34" rx="7" fill="#FBBC04"/>
   <text x="501" y="229" fill="#111111" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700">Redmine</text>
+  <g opacity=".62">
+    <circle cx="760" cy="160" r="8" fill="#34A853"/>
+    <path d="M782 160c28-42 70-42 98 0s70 42 98 0" fill="none" stroke="#4285F4" stroke-width="12" stroke-linecap="round"/>
+    <rect x="1034" y="116" width="58" height="88" rx="16" fill="#E8EAED"/>
+    <path d="M1050 142h24M1050 162h16" stroke="#111111" stroke-width="6" stroke-linecap="round"/>
+  </g>
 </svg>
