@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Issue Jumper logo</title>
+  <desc id="desc">A Git branch jumping toward an issue card.</desc>
+  <rect width="256" height="256" rx="56" fill="#111111"/>
+  <path d="M70 76v104" fill="none" stroke="#E8EAED" stroke-width="10" stroke-linecap="round"/>
+  <path d="M70 128c18 0 24-28 44-28" fill="none" stroke="#E8EAED" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="70" cy="76" r="11" fill="#4285F4"/>
+  <circle cx="70" cy="128" r="11" fill="#34A853"/>
+  <circle cx="70" cy="180" r="11" fill="#FBBC04"/>
+  <circle cx="114" cy="100" r="10" fill="#EA4335"/>
+  <path d="M124 124c13-25 35-25 48 0" fill="none" stroke="#4285F4" stroke-width="12" stroke-linecap="round"/>
+  <path d="M158 148c9 19 25 19 34 0" fill="none" stroke="#FBBC04" stroke-width="12" stroke-linecap="round"/>
+  <path d="M157 177c8 5 21 5 29 0" fill="none" stroke="#EA4335" stroke-width="8" stroke-linecap="round"/>
+  <rect x="198" y="92" width="46" height="72" rx="13" fill="#E8EAED"/>
+  <path d="M211 114h18M211 130h12" stroke="#111111" stroke-width="6" stroke-linecap="round"/>
+</svg>

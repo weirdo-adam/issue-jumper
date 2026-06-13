@@ -1,6 +1,27 @@
-# Issue Jumper
+<p align="center">
+  <img src="assets/readme-banner.svg" alt="Issue Jumper - 从 Git 分支跳转到对应 Issue 页面" width="100%">
+</p>
 
-[English README](README.md)
+<h1 align="center">Issue Jumper</h1>
+
+<p align="center">
+  面向 Git 分支、终端和 Zed 工作区的约定优先 Issue 跳转工具。
+</p>
+
+<p align="center">
+  <a href="README.md">English README</a>
+  ·
+  <a href="docs/design.md">技术设计</a>
+  ·
+  <a href="docs/development.md">开发指南</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-0F3D3E?style=flat-square"></a>
+  <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-D95B43?style=flat-square">
+  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-F7C948?style=flat-square">
+  <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-2C5F5E?style=flat-square">
+</p>
 
 Issue Jumper 用于从当前 Git 分支解析 Issue URL，并使用系统默认浏览器打开。项目采用约定优先的 CLI 设计，并提供 Zed 安装器，用于在编辑器工作区中通过一个快捷键跳转到当前分支对应的 Issue。
 

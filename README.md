@@ -1,6 +1,27 @@
-# Issue Jumper
+<p align="center">
+  <img src="assets/readme-banner.svg" alt="Issue Jumper - Jump from a Git branch to its issue page" width="100%">
+</p>
 
-[中文文档](README.zh-CN.md)
+<h1 align="center">Issue Jumper</h1>
+
+<p align="center">
+  Convention-first issue navigation for Git branches, terminals, and Zed workspaces.
+</p>
+
+<p align="center">
+  <a href="README.zh-CN.md">中文文档</a>
+  ·
+  <a href="docs/design.md">Technical design</a>
+  ·
+  <a href="docs/development.md">Development guide</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-0F3D3E?style=flat-square"></a>
+  <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-D95B43?style=flat-square">
+  <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-F7C948?style=flat-square">
+  <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-2C5F5E?style=flat-square">
+</p>
 
 Issue Jumper resolves an issue URL from the current Git branch and opens it in the system browser. It is a convention-first CLI with a Zed installer for one-key navigation from an editor workspace.
 
