@@ -49,6 +49,25 @@ die() {
   exit 1
 }
 
+warn_if_homebrew_install_exists() {
+  command -v brew >/dev/null 2>&1 || return 0
+
+  brew_prefix="$(brew --prefix 2>/dev/null || true)"
+  [ -n "$brew_prefix" ] || return 0
+
+  brew_binary="$brew_prefix/bin/issue-jumper"
+  [ -x "$brew_binary" ] || return 0
+
+  target_binary="$install_dir/issue-jumper"
+  [ "$target_binary" = "$brew_binary" ] && return 0
+
+  {
+    echo "issue-jumper install: detected Homebrew issue-jumper at $brew_binary"
+    echo "issue-jumper install: this script installs to $target_binary; keeping both can make PATH or Zed use a different copy than Homebrew upgrades."
+    echo "issue-jumper install: for a Homebrew-managed setup, run: $brew_binary install-zed --force"
+  } >&2
+}
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --version)
@@ -92,6 +111,8 @@ while [ "$#" -gt 0 ]; do
       ;;
   esac
 done
+
+warn_if_homebrew_install_exists
 
 download_stdout() {
   tmp_base="${TMPDIR:-/tmp}"

@@ -121,10 +121,13 @@ The tap formula is `Formula/issue-jumper.rb`. For a new release:
 1. Update the formula `tag` to the new version.
 2. Update the formula `revision` to the exact commit for that tag.
 3. Run `ruby -c Formula/issue-jumper.rb`.
-4. Run `brew install --build-from-source weirdo-adam/tap/issue-jumper` when network and Homebrew dependencies are available.
-5. Commit and push the tap.
+4. Commit and push the tap.
+5. Run the tap repository's `Bottle` workflow with the formula name and bottle release tag, for example `issue-jumper-0.1.0`.
+6. Confirm the workflow uploads the bottle asset and commits the merged `bottle do` block.
 
-The formula builds from source with Homebrew's `rust` build dependency. It intentionally does not run `issue-jumper install-zed`, because Homebrew formulae should not mutate user editor configuration during install.
+The formula keeps `rust` as a build dependency for source fallback, but supported Homebrew installs should pour a bottle so users do not download Rust or LLVM during normal installation. The formula intentionally does not run `issue-jumper install-zed`, because Homebrew formulae should not mutate user editor configuration during install.
+
+If a user has both Homebrew and the one-command installer copy, keep the sources explicit instead of auto-removing files. The terminal uses the first `issue-jumper` in `PATH`, and Zed uses the absolute path written by the latest `install-zed` run. To move a macOS setup to Homebrew, run `/opt/homebrew/bin/issue-jumper install-zed --force` after installing from the tap.
 
 ## Local Release
 

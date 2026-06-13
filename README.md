@@ -63,16 +63,16 @@ Core commands such as `url` and `doctor` work offline once the binary is install
 
 ## Installation
 
-Install with Homebrew:
+On macOS, install with Homebrew:
 
 ```sh
 brew install weirdo-adam/tap/issue-jumper
 issue-jumper install-zed --force
 ```
 
-Homebrew installs the CLI only. Run `issue-jumper install-zed --force` after installation when you want the Zed task and keymap integration.
+Homebrew installs the CLI only. Run `issue-jumper install-zed --force` after installation when you want the Zed task and keymap integration. This keeps CLI upgrades under Homebrew while letting the CLI write the Zed task/keymap files explicitly.
 
-Install the latest release and configure Zed:
+If you do not use Homebrew, install the latest release and configure Zed with the one-command installer:
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
@@ -81,6 +81,12 @@ wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/script
 The installer downloads the supported Unix host archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
 
 Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced.
+
+Avoid mixing install sources when possible. If Homebrew and `~/.local/bin/issue-jumper` both exist, the first directory in `PATH` wins in the terminal, while Zed uses the absolute command path written by the last `install-zed` run. To move an existing setup to Homebrew, remove or de-prioritize the `~/.local/bin` copy, then run:
+
+```sh
+/opt/homebrew/bin/issue-jumper install-zed --force
+```
 
 GitHub Releases publish prebuilt archives for Apple Silicon macOS, Linux x64, and Windows x64. The shell installer supports Apple Silicon macOS and Linux x64. Windows users can download the `.zip` asset and place `issue-jumper.exe` on `PATH`.
 
