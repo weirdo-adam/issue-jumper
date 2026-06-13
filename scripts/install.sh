@@ -107,14 +107,14 @@ download_file() {
 
   if command -v curl >/dev/null 2>&1; then
     attempted=1
-    if curl -fsSL --connect-timeout 15 -o "$2" "$1"; then
+    if curl -fsSL --connect-timeout 15 --retry 2 --retry-delay 1 -o "$2" "$1"; then
       return 0
     fi
   fi
 
   if command -v wget >/dev/null 2>&1; then
     attempted=1
-    if wget -qO "$2" "$1"; then
+    if wget -q --timeout=15 --tries=2 -O "$2" "$1"; then
       return 0
     fi
   fi
