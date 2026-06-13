@@ -30,6 +30,7 @@ Issue Jumper resolves an issue URL from the current Git branch and opens it in t
 
 - Resolves common GitHub, GitLab, private GitLab, Bitbucket, and Gitee remotes.
 - Extracts issue IDs from branch names such as `feature/GH-123`, `fix/issue-456`, `101-add-login`, and `feature/ABC-456-login`.
+- Opens the GitHub or GitLab repository page when the branch has no recognizable issue ID.
 - Supports Redmine, Jira, GitLab work items, and custom URL templates through global or project config.
 - Installs a Zed task and keymap binding with `issue-jumper install-zed`.
 - Provides `open`, `url`, and `doctor` commands for editor, terminal, and script usage.
@@ -61,7 +62,7 @@ Install with options:
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key cmd-alt-j
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.0 --install-dir ~/.local/bin
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.1 --install-dir ~/.local/bin
 ```
 
 For local development, build from source and install the Zed integration:
@@ -167,13 +168,13 @@ sh -n scripts/install.sh
 Build a local release archive:
 
 ```sh
-scripts/package-release.sh --version v0.1.0
+scripts/package-release.sh --version v0.1.1
 ```
 
 Publish a local release artifact:
 
 ```sh
-scripts/publish-release.sh v0.1.0
+scripts/publish-release.sh v0.1.1
 ```
 
 Release artifacts are built and uploaded locally with repository scripts.

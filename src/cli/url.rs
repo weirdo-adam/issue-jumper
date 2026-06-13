@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::jump::{JumpOptions, JumpResult, resolve_jump};
+use crate::jump::{JumpOptions, JumpResult, JumpTarget, resolve_jump};
 
 use super::parse_jump_args;
 
@@ -21,9 +21,20 @@ pub fn run(args: &[String]) -> Result<()> {
 fn print_jump_result(result: &JumpResult) {
     println!("{}", result.url);
     println!("branch: {}", result.branch);
-    println!("issue_id: {}", result.issue_id);
     println!("platform: {}", result.platform.name());
-    println!("rule: {}", result.matched_rule);
+    match &result.target {
+        JumpTarget::Issue {
+            issue_id,
+            matched_rule,
+        } => {
+            println!("target: issue");
+            println!("issue_id: {issue_id}");
+            println!("rule: {matched_rule}");
+        }
+        JumpTarget::Repository => {
+            println!("target: repository");
+        }
+    }
     if let Some(remote) = &result.remote {
         println!("remote: {} {}", remote.remote_name, remote.original_url);
     }

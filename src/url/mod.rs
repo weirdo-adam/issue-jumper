@@ -75,6 +75,36 @@ pub fn build_issue_url(
     Ok(url)
 }
 
+pub fn build_repository_url(platform: &Platform, remote: Option<&RemoteInfo>) -> Result<String> {
+    let url = match platform {
+        Platform::GitHub => {
+            let remote = required_remote(remote, "GitHub")?;
+            format!(
+                "https://github.com/{}/{}",
+                encode_segment(required(remote.owner.as_deref(), "GitHub owner")?),
+                encode_segment(required(remote.repo.as_deref(), "GitHub repo")?)
+            )
+        }
+        Platform::GitLab => {
+            let remote = required_remote(remote, "GitLab")?;
+            format!(
+                "https://{}/{}",
+                remote.host,
+                encode_path(required(remote.project.as_deref(), "GitLab project")?)
+            )
+        }
+        _ => {
+            return Err(IssueJumperError::UrlBuildFailed(format!(
+                "Cannot build repository URL for {}",
+                platform.name()
+            )));
+        }
+    };
+
+    validate_http_url(&url)?;
+    Ok(url)
+}
+
 pub fn resolve_platform(
     platform_override: Option<Platform>,
     rule_platform: Option<Platform>,
@@ -181,6 +211,9 @@ mod tests {
         let remote = parse_remote("origin", "git@github.com:owner/repo.git", &config).unwrap();
         let url = build_issue_url("123", &Platform::GitHub, Some(&remote), &config).unwrap();
         assert_eq!(url, "https://github.com/owner/repo/issues/123");
+
+        let repo_url = build_repository_url(&Platform::GitHub, Some(&remote)).unwrap();
+        assert_eq!(repo_url, "https://github.com/owner/repo");
     }
 
     #[test]
@@ -190,6 +223,9 @@ mod tests {
             parse_remote("origin", "git@gitlab.com:group/subgroup/app.git", &config).unwrap();
         let url = build_issue_url("456", &Platform::GitLab, Some(&remote), &config).unwrap();
         assert_eq!(url, "https://gitlab.com/group/subgroup/app/-/issues/456");
+
+        let repo_url = build_repository_url(&Platform::GitLab, Some(&remote)).unwrap();
+        assert_eq!(repo_url, "https://gitlab.com/group/subgroup/app");
     }
 
     #[test]
@@ -287,6 +323,11 @@ mod tests {
         let github_error = build_issue_url("1", &Platform::GitHub, None, &config).unwrap_err();
         assert!(
             matches!(github_error, IssueJumperError::UrlBuildFailed(message) if message.contains("without Git remote"))
+        );
+
+        let repository_error = build_repository_url(&Platform::Bitbucket, None).unwrap_err();
+        assert!(
+            matches!(repository_error, IssueJumperError::UrlBuildFailed(message) if message.contains("Bitbucket") || message.contains("bitbucket"))
         );
 
         let redmine_error = build_issue_url("1", &Platform::Redmine, None, &config).unwrap_err();

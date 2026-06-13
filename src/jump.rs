@@ -1,12 +1,12 @@
 use std::path::PathBuf;
 
-use crate::config::load_config;
-use crate::error::Result;
+use crate::config::{UserConfig, load_config};
+use crate::error::{IssueJumperError, Result};
 use crate::git::remote::{RemoteInfo, parse_remote};
-use crate::git::{GitReader, resolve_repo};
+use crate::git::{GitReader, RemoteUrl, resolve_repo};
 use crate::issue::extract_issue;
 use crate::platform::Platform;
-use crate::url::{build_issue_url, resolve_platform};
+use crate::url::{build_issue_url, build_repository_url, resolve_platform};
 
 #[derive(Debug, Clone, Default)]
 pub struct JumpOptions {
@@ -19,11 +19,19 @@ pub struct JumpOptions {
 pub struct JumpResult {
     pub repo: PathBuf,
     pub branch: String,
-    pub issue_id: String,
     pub platform: Platform,
-    pub matched_rule: String,
+    pub target: JumpTarget,
     pub url: String,
     pub remote: Option<RemoteInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum JumpTarget {
+    Issue {
+        issue_id: String,
+        matched_rule: String,
+    },
+    Repository,
 }
 
 pub fn resolve_jump(options: JumpOptions) -> Result<JumpResult> {
@@ -31,11 +39,14 @@ pub fn resolve_jump(options: JumpOptions) -> Result<JumpResult> {
     let config = load_config(&repo)?;
     let git = GitReader::new(repo.clone())?;
     let branch = git.current_branch()?;
-    let issue = extract_issue(&branch, &config, options.rule_name.as_deref())?;
-    let remote = git
-        .remote_url()?
-        .map(|remote| parse_remote(&remote.name, &remote.url, &config))
-        .transpose()?;
+    let issue = match extract_issue(&branch, &config, options.rule_name.as_deref()) {
+        Ok(issue) => issue,
+        Err(IssueJumperError::NoMatchingRule(branch)) => {
+            return resolve_repository_jump(repo, branch, &git, &config);
+        }
+        Err(err) => return Err(err),
+    };
+    let remote = resolve_remote(&git, &config)?;
     let platform = resolve_platform(
         options.platform_override,
         issue.platform_hint.clone(),
@@ -47,12 +58,54 @@ pub fn resolve_jump(options: JumpOptions) -> Result<JumpResult> {
     Ok(JumpResult {
         repo,
         branch,
-        issue_id: issue.issue_id,
         platform,
-        matched_rule: issue.rule_name,
+        target: JumpTarget::Issue {
+            issue_id: issue.issue_id,
+            matched_rule: issue.rule_name,
+        },
         url,
         remote,
     })
+}
+
+fn resolve_repository_jump(
+    repo: PathBuf,
+    branch: String,
+    git: &GitReader,
+    config: &UserConfig,
+) -> Result<JumpResult> {
+    let no_match = IssueJumperError::NoMatchingRule(branch.clone());
+    let Some(remote) = optional_remote_for_no_match(git, config) else {
+        return Err(no_match);
+    };
+    let platform = remote.platform.clone();
+    if !matches!(platform, Platform::GitHub | Platform::GitLab) {
+        return Err(no_match);
+    }
+    let url = build_repository_url(&platform, Some(&remote))?;
+
+    Ok(JumpResult {
+        repo,
+        branch,
+        platform,
+        target: JumpTarget::Repository,
+        url,
+        remote: Some(remote),
+    })
+}
+
+fn optional_remote_for_no_match(git: &GitReader, config: &UserConfig) -> Option<RemoteInfo> {
+    resolve_remote(git, config).ok().flatten()
+}
+
+fn resolve_remote(git: &GitReader, config: &UserConfig) -> Result<Option<RemoteInfo>> {
+    git.remote_url()?
+        .map(|remote| parse_remote_url(remote, config))
+        .transpose()
+}
+
+fn parse_remote_url(remote: RemoteUrl, config: &UserConfig) -> Result<RemoteInfo> {
+    parse_remote(&remote.name, &remote.url, config)
 }
 
 #[cfg(test)]
@@ -177,9 +230,89 @@ mod tests {
         })
         .unwrap();
 
-        assert_eq!(result.issue_id, "77");
         assert_eq!(result.platform, Platform::Redmine);
         assert_eq!(result.url, "https://redmine.company.com/issues/77");
+        assert_eq!(
+            result.target,
+            JumpTarget::Issue {
+                issue_id: "77".to_string(),
+                matched_rule: "custom".to_string(),
+            }
+        );
+    }
+
+    #[test]
+    fn falls_back_to_github_repository_when_no_issue_matches() {
+        let repo = temp_repo("github-repo-fallback");
+        git(&repo, ["init"]);
+        git(&repo, ["checkout", "-b", "main"]);
+        git(
+            &repo,
+            ["remote", "add", "origin", "git@github.com:owner/repo.git"],
+        );
+
+        let result = resolve_jump(JumpOptions {
+            repo: Some(repo),
+            ..JumpOptions::default()
+        })
+        .unwrap();
+
+        assert_eq!(result.platform, Platform::GitHub);
+        assert_eq!(result.target, JumpTarget::Repository);
+        assert_eq!(result.url, "https://github.com/owner/repo");
+    }
+
+    #[test]
+    fn falls_back_to_gitlab_repository_when_no_issue_matches() {
+        let repo = temp_repo("gitlab-repo-fallback");
+        git(&repo, ["init"]);
+        git(&repo, ["checkout", "-b", "main"]);
+        git(
+            &repo,
+            [
+                "remote",
+                "add",
+                "origin",
+                "git@gitlab.com:group/subgroup/app.git",
+            ],
+        );
+
+        let result = resolve_jump(JumpOptions {
+            repo: Some(repo),
+            ..JumpOptions::default()
+        })
+        .unwrap();
+
+        assert_eq!(result.platform, Platform::GitLab);
+        assert_eq!(result.target, JumpTarget::Repository);
+        assert_eq!(result.url, "https://gitlab.com/group/subgroup/app");
+    }
+
+    #[test]
+    fn keeps_no_matching_rule_for_non_github_gitlab_remotes() {
+        let repo = temp_repo("no-repo-fallback");
+        git(&repo, ["init"]);
+        git(&repo, ["checkout", "-b", "main"]);
+        git(
+            &repo,
+            [
+                "remote",
+                "add",
+                "origin",
+                "git@bitbucket.org:owner/repo.git",
+            ],
+        );
+
+        let err = resolve_jump(JumpOptions {
+            repo: Some(repo),
+            ..JumpOptions::default()
+        })
+        .unwrap_err();
+
+        assert!(matches!(
+            err,
+            crate::error::IssueJumperError::NoMatchingRule(branch) if branch == "main"
+        ));
     }
 
     #[test]

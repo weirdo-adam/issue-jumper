@@ -56,6 +56,27 @@ mod tests {
     }
 
     #[test]
+    fn opens_repository_url_when_issue_id_is_missing() {
+        let repo = temp_repo("open-repository");
+        git(&repo, ["init"]);
+        git(&repo, ["checkout", "-b", "main"]);
+        git(
+            &repo,
+            ["remote", "add", "origin", "git@github.com:owner/repo.git"],
+        );
+        let args = vec!["--repo".to_string(), repo.display().to_string()];
+        let mut opened = None;
+
+        run_with_opener(&args, |url| {
+            opened = Some(url.to_string());
+            Ok(())
+        })
+        .unwrap();
+
+        assert_eq!(opened.as_deref(), Some("https://github.com/owner/repo"));
+    }
+
+    #[test]
     fn propagates_opener_error() {
         let repo = temp_repo("open-error");
         git(&repo, ["init"]);
