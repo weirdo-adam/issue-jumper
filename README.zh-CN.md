@@ -66,10 +66,13 @@ issue-jumper install-zed --print
 
 ## 配置
 
-配置是可选的。Issue Jumper 按顺序读取第一个存在的文件：
+配置是可选的。Issue Jumper 会先读取全局配置，再叠加第一个存在的项目配置：
 
-1. `<repo>/.zed/issue-jumper.json`
-2. `<repo>/.issue-jumper.json`
+1. `$XDG_CONFIG_HOME/issue-jumper/config.json` 或 `~/.config/issue-jumper/config.json`
+2. `<repo>/.zed/issue-jumper.json`
+3. `<repo>/.issue-jumper.json`
+
+Windows 全局路径为 `%APPDATA%\issue-jumper\config.json`。
 
 Redmine 覆盖示例：
 

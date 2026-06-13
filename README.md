@@ -66,10 +66,13 @@ The installer writes the absolute CLI path into the Zed task to avoid shell `PAT
 
 ## Configuration
 
-Configuration is optional. Issue Jumper loads the first matching file:
+Configuration is optional. Issue Jumper loads global config first, then overlays the first matching project config:
 
-1. `<repo>/.zed/issue-jumper.json`
-2. `<repo>/.issue-jumper.json`
+1. `$XDG_CONFIG_HOME/issue-jumper/config.json` or `~/.config/issue-jumper/config.json`
+2. `<repo>/.zed/issue-jumper.json`
+3. `<repo>/.issue-jumper.json`
+
+On Windows, the global path is `%APPDATA%\issue-jumper\config.json`.
 
 Example Redmine override:
 

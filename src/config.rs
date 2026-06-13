@@ -17,6 +17,32 @@ pub struct UserConfig {
     pub custom_platforms: Vec<CustomPlatform>,
 }
 
+impl UserConfig {
+    fn merge_override(mut self, override_config: UserConfig) -> Self {
+        if override_config.fallback_platform.is_some() {
+            self.fallback_platform = override_config.fallback_platform;
+        }
+        if override_config.redmine_base_url.is_some() {
+            self.redmine_base_url = override_config.redmine_base_url;
+        }
+        if !override_config.disabled_default_rules.is_empty() {
+            self.disabled_default_rules
+                .extend(override_config.disabled_default_rules);
+        }
+        if !override_config.issue_rules.is_empty() {
+            let mut issue_rules = override_config.issue_rules;
+            issue_rules.extend(self.issue_rules);
+            self.issue_rules = issue_rules;
+        }
+        if !override_config.custom_platforms.is_empty() {
+            let mut custom_platforms = override_config.custom_platforms;
+            custom_platforms.extend(self.custom_platforms);
+            self.custom_platforms = custom_platforms;
+        }
+        self
+    }
+}
+
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RawIssueRule {
@@ -35,23 +61,55 @@ pub struct CustomPlatform {
 }
 
 pub fn load_config(repo: &Path) -> Result<UserConfig> {
-    for path in config_paths(repo) {
+    load_config_from(repo, global_config_path())
+}
+
+fn load_config_from(repo: &Path, global_path: Option<PathBuf>) -> Result<UserConfig> {
+    let mut config = if let Some(path) = global_path.filter(|path| path.exists()) {
+        read_config(&path)?
+    } else {
+        UserConfig::default()
+    };
+
+    for path in project_config_paths(repo) {
         if path.exists() {
-            let text = fs::read_to_string(&path)?;
-            return serde_json::from_str(&text).map_err(|err| {
-                IssueJumperError::InvalidConfig(format!("{}: {err}", path.display()))
-            });
+            config = config.merge_override(read_config(&path)?);
+            break;
         }
     }
 
-    Ok(UserConfig::default())
+    Ok(config)
 }
 
-fn config_paths(repo: &Path) -> [PathBuf; 2] {
+fn read_config(path: &Path) -> Result<UserConfig> {
+    let text = fs::read_to_string(path)?;
+    serde_json::from_str(&text)
+        .map_err(|err| IssueJumperError::InvalidConfig(format!("{}: {err}", path.display())))
+}
+
+fn project_config_paths(repo: &Path) -> [PathBuf; 2] {
     [
         repo.join(".zed").join("issue-jumper.json"),
         repo.join(".issue-jumper.json"),
     ]
+}
+
+fn global_config_path() -> Option<PathBuf> {
+    #[cfg(windows)]
+    if let Some(path) = std::env::var_os("APPDATA") {
+        return Some(PathBuf::from(path).join("issue-jumper").join("config.json"));
+    }
+
+    if let Some(path) = std::env::var_os("XDG_CONFIG_HOME") {
+        return Some(PathBuf::from(path).join("issue-jumper").join("config.json"));
+    }
+
+    std::env::var_os("HOME").map(|path| {
+        PathBuf::from(path)
+            .join(".config")
+            .join("issue-jumper")
+            .join("config.json")
+    })
 }
 
 #[cfg(test)]
@@ -64,7 +122,7 @@ mod tests {
         let dir = temp_dir("missing");
         fs::create_dir_all(&dir).unwrap();
 
-        let config = load_config(&dir).unwrap();
+        let config = load_config_from(&dir, None).unwrap();
 
         assert!(config.fallback_platform.is_none());
         assert!(config.issue_rules.is_empty());
@@ -85,7 +143,7 @@ mod tests {
         )
         .unwrap();
 
-        let config = load_config(&dir).unwrap();
+        let config = load_config_from(&dir, None).unwrap();
 
         assert_eq!(config.fallback_platform.as_deref(), Some("redmine"));
         assert_eq!(
@@ -104,7 +162,7 @@ mod tests {
         )
         .unwrap();
 
-        let err = load_config(&dir).unwrap_err();
+        let err = load_config_from(&dir, None).unwrap_err();
 
         assert!(
             matches!(err, IssueJumperError::InvalidConfig(message) if message.contains("unknown field") && message.contains("default_platform"))
@@ -117,7 +175,7 @@ mod tests {
         fs::create_dir_all(&dir).unwrap();
         fs::write(dir.join(".issue-jumper.json"), "{").unwrap();
 
-        let err = load_config(&dir).unwrap_err();
+        let err = load_config_from(&dir, None).unwrap_err();
 
         assert!(
             matches!(err, IssueJumperError::InvalidConfig(message) if message.contains(".issue-jumper.json"))
@@ -127,10 +185,56 @@ mod tests {
     #[test]
     fn returns_expected_config_paths() {
         let dir = PathBuf::from("/repo");
-        let paths = config_paths(&dir);
+        let paths = project_config_paths(&dir);
 
         assert_eq!(paths[0], PathBuf::from("/repo/.zed/issue-jumper.json"));
         assert_eq!(paths[1], PathBuf::from("/repo/.issue-jumper.json"));
+    }
+
+    #[test]
+    fn merges_global_config_with_project_override() {
+        let dir = temp_dir("merge");
+        let global = temp_dir("global-config").join("config.json");
+        fs::create_dir_all(&dir).unwrap();
+        fs::create_dir_all(global.parent().unwrap()).unwrap();
+        fs::write(
+            &global,
+            r#"{
+              "redmine_base_url": "https://redmine.global.example.com",
+              "issue_rules": [
+                {
+                  "name": "global-redmine",
+                  "pattern": "global-(?P<id>\\d+)",
+                  "platform": "redmine"
+                }
+              ]
+            }"#,
+        )
+        .unwrap();
+        fs::write(
+            dir.join(".issue-jumper.json"),
+            r#"{
+              "redmine_base_url": "https://redmine.project.example.com",
+              "issue_rules": [
+                {
+                  "name": "project-redmine",
+                  "pattern": "project-(?P<id>\\d+)",
+                  "platform": "redmine"
+                }
+              ]
+            }"#,
+        )
+        .unwrap();
+
+        let config = load_config_from(&dir, Some(global)).unwrap();
+
+        assert_eq!(
+            config.redmine_base_url.as_deref(),
+            Some("https://redmine.project.example.com")
+        );
+        assert_eq!(config.issue_rules.len(), 2);
+        assert_eq!(config.issue_rules[0].name, "project-redmine");
+        assert_eq!(config.issue_rules[1].name, "global-redmine");
     }
 
     fn temp_dir(label: &str) -> PathBuf {
