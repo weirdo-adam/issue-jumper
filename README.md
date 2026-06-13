@@ -63,6 +63,15 @@ Core commands such as `url` and `doctor` work offline once the binary is install
 
 ## Installation
 
+Install with Homebrew:
+
+```sh
+brew install weirdo-adam/tap/issue-jumper
+issue-jumper install-zed --force
+```
+
+Homebrew installs the CLI only. Run `issue-jumper install-zed --force` after installation when you want the Zed task and keymap integration.
+
 Install the latest release and configure Zed:
 
 ```sh

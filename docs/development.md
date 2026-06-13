@@ -102,6 +102,30 @@ Current release targets:
 
 The same workflow supports manual rebuilds from the Actions tab through `workflow_dispatch`; pass the release tag, for example `v0.1.0`.
 
+## Homebrew Release
+
+Homebrew installation is published through the external tap repository:
+
+```text
+weirdo-adam/homebrew-tap
+```
+
+Users install from the tap with:
+
+```sh
+brew install weirdo-adam/tap/issue-jumper
+```
+
+The tap formula is `Formula/issue-jumper.rb`. For a new release:
+
+1. Update the formula `tag` to the new version.
+2. Update the formula `revision` to the exact commit for that tag.
+3. Run `ruby -c Formula/issue-jumper.rb`.
+4. Run `brew install --build-from-source weirdo-adam/tap/issue-jumper` when network and Homebrew dependencies are available.
+5. Commit and push the tap.
+
+The formula builds from source with Homebrew's `rust` build dependency. It intentionally does not run `issue-jumper install-zed`, because Homebrew formulae should not mutate user editor configuration during install.
+
 ## Local Release
 
 Local release scripts remain available for testing or emergency uploads.
