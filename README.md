@@ -20,6 +20,7 @@
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-0F3D3E?style=flat-square"></a>
   <img alt="Language: Rust" src="https://img.shields.io/badge/Rust-CLI-D95B43?style=flat-square">
   <img alt="Editor: Zed" src="https://img.shields.io/badge/Zed-alt--j-F7C948?style=flat-square">
+  <img alt="Privacy: local only" src="https://img.shields.io/badge/privacy-local%20only-34A853?style=flat-square">
   <img alt="Release: local packaging" src="https://img.shields.io/badge/release-local%20packaging-2C5F5E?style=flat-square">
 </p>
 
@@ -32,6 +33,13 @@ Issue Jumper resolves an issue URL from the current Git branch and opens it in t
 - Supports Redmine, Jira, GitLab work items, and custom URL templates through global or project config.
 - Installs a Zed task and keymap binding with `issue-jumper install-zed`.
 - Provides `open`, `url`, and `doctor` commands for editor, terminal, and script usage.
+- Runs locally without telemetry or customer data collection.
+
+## Privacy and Offline Use
+
+Issue Jumper performs branch parsing, config loading, remote parsing, and URL generation on the local machine. It does not collect telemetry and does not upload branch names, repository paths, Git remotes, config values, or issue IDs.
+
+Core commands such as `url` and `doctor` work offline once the binary is installed. Network access is only needed for the install script to download release assets, and for the browser or external issue tracker when opening the generated URL.
 
 ## Installation
 
