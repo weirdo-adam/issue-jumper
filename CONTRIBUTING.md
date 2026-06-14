@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for considering a contribution to Issue Jumper.
+Thanks for considering a contribution to Issue Jumper.
 
 ## Development
 
@@ -10,9 +10,17 @@ Before submitting a change, run:
 
 ```sh
 make check
-shellcheck scripts/*.sh
-cargo package --allow-dirty --no-verify
 ```
+
+`make check` covers Rust formatting, clippy with warnings denied, file length limits, shell syntax
+checks, and tests.
+
+## Code Standards
+
+- Keep every checked source, script, workflow, config, and Markdown file at or below 500 lines.
+- Keep Rust modules focused and close tests to the behavior they verify.
+- Prefer shared CLI/library logic over editor-specific duplicate logic.
+- Update documentation when user-visible behavior changes.
 
 ## Pull Requests
 
@@ -20,8 +28,10 @@ cargo package --allow-dirty --no-verify
 - Update documentation when user-visible behavior changes.
 - Add or update tests for parsing, config, URL generation, and Zed integration changes.
 - Do not include private hostnames, internal issue IDs, local paths, credentials, or tokens.
-- Release artifacts are built locally with repository scripts; this project does not use GitHub CI for packaging.
+- Do not install Windows Rust targets for local validation; Windows is covered by GitHub Actions.
 
 ## Releases
 
-Release tags should be treated as immutable after publication. Publish follow-up fixes as a new patch release instead of rewriting an existing tag.
+Release artifacts are built by GitHub Actions when a `v*` tag is pushed. Release tags should be
+treated as immutable after publication. Publish follow-up fixes as a new patch release instead of
+rewriting an existing tag.

@@ -44,6 +44,9 @@ jobs:
         run: |
           cargo fmt --all --check
           cargo clippy --all-targets --all-features -- -D warnings
+          bash scripts/check-file-lines.sh
+          bash -n scripts/*.sh
+          sh -n scripts/install.sh
           cargo test --all-targets
 
       - name: Run CLI smoke tests

@@ -7,8 +7,7 @@
 ## Verification
 
 - [ ] `make check`
-- [ ] `shellcheck scripts/*.sh`
-- [ ] `cargo package --allow-dirty --no-verify`
+- [ ] Documentation updated, if behavior changed
 
 ## Notes
 

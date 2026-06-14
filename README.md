@@ -5,15 +5,17 @@
 <h1 align="center">Issue Jumper</h1>
 
 <p align="center">
-  Convention-first issue navigation for Git branches, terminals, and Zed workspaces.
+  Convention-first issue navigation for Git branches, terminals, and editor workspaces.
 </p>
 
 <p align="center">
-  <a href="README.zh-CN.md">中文文档</a>
+  <a href="README.zh-CN.md">中文</a>
   ·
-  <a href="docs/technical-design.md">Technical design</a>
+  <a href="docs/usage.md">Usage</a>
   ·
-  <a href="docs/development.md">Development guide</a>
+  <a href="docs/architecture.md">Architecture</a>
+  ·
+  <a href="docs/development.md">Development</a>
 </p>
 
 <p align="center">
@@ -25,19 +27,26 @@
   <a href="https://github.com/weirdo-adam/issue-jumper/actions/workflows/release.yml"><img alt="Release" src="https://github.com/weirdo-adam/issue-jumper/actions/workflows/release.yml/badge.svg"></a>
 </p>
 
-Issue Jumper resolves an issue URL from the current Git branch and opens it in the system browser. It is a convention-first CLI with a Zed installer for one-key navigation from an editor workspace.
-
-Double-tap Option/Alt in Zed, or run `issue-jumper open`, to jump from a branch such as `feature/GH-123-add-login` to the matching issue page.
+Issue Jumper resolves an issue URL from the current Git branch and opens it in the system browser.
+It works as a local CLI and can install a Zed task/keymap so double-tapping Option/Alt opens the
+current branch's issue from the editor.
 
 ## Quick Start
 
-Install the latest release and configure the default Zed shortcut:
+Install with Homebrew:
+
+```sh
+brew install weirdo-adam/tap/issue-jumper
+issue-jumper install-zed --force
+```
+
+Or install the latest release with the shell installer:
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
 ```
 
-Then use one of the built-in entry points:
+Run from a repository:
 
 ```sh
 issue-jumper open --repo /path/to/repo
@@ -47,207 +56,32 @@ issue-jumper doctor --repo /path/to/repo
 
 ## Features
 
-- Resolves common GitHub, GitLab, private GitLab, Bitbucket, and Gitee remotes.
-- Extracts issue IDs from branch names such as `feature/GH-123`, `fix/issue-456`, `101-add-login`, and `feature/ABC-456-login`.
-- Opens the GitHub or GitLab repository page when the branch has no recognizable issue ID.
-- Supports Redmine, Jira, GitLab work items, and custom URL templates through global or project config.
-- Installs a Zed task and keymap binding with `issue-jumper install-zed`.
-- Provides `open`, `url`, and `doctor` commands for editor, terminal, and script usage.
+- Detects GitHub, GitLab, private GitLab, Bitbucket, Gitee, Redmine, and custom trackers.
+- Extracts issue IDs from common branch names such as `feature/GH-123` and `feature/ABC-456`.
+- Falls back to the GitHub/GitLab repository homepage when a branch has no issue ID.
+- Supports global and per-project JSON config, including custom rules and URL templates.
+- Provides Zed, VS Code, Cursor, and generic editor integration examples.
 - Runs locally without telemetry or customer data collection.
-
-## Privacy and Offline Use
-
-Issue Jumper performs branch parsing, config loading, remote parsing, and URL generation on the local machine. It does not collect telemetry and does not upload branch names, repository paths, Git remotes, config values, or issue IDs.
-
-Core commands such as `url` and `doctor` work offline once the binary is installed. Network access is only needed for the install script to download release assets, and for the browser or external issue tracker when opening the generated URL.
-
-## Installation
-
-On macOS, install with Homebrew:
-
-```sh
-brew install weirdo-adam/tap/issue-jumper
-issue-jumper install-zed --force
-```
-
-Homebrew installs the CLI only. Run `issue-jumper install-zed --force` after installation when you want the Zed task and keymap integration. This keeps CLI upgrades under Homebrew while letting the CLI write the Zed task/keymap files explicitly.
-
-If you do not use Homebrew, install the latest release and configure Zed with the one-command installer:
-
-```sh
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh
-```
-
-The installer downloads the supported Unix host archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
-
-Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced. Pass `--uninstall` to remove the copy installed by this script. The uninstall path verifies the target before deleting it; pass `--force-uninstall` only for an unknown same-name file you intentionally want to remove.
-
-Avoid mixing install sources when possible. If Homebrew and `~/.local/bin/issue-jumper` both exist, the first directory in `PATH` wins in the terminal, while Zed uses the absolute command path written by the last `install-zed` run. To move an existing setup to Homebrew:
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --uninstall
-/opt/homebrew/bin/issue-jumper install-zed --force
-```
-
-If `issue-jumper` is not found after a Homebrew install, add Homebrew to your shell `PATH` with `brew shellenv`, or use the full `/opt/homebrew/bin/issue-jumper` path.
-
-GitHub Releases publish prebuilt archives for Apple Silicon macOS, Linux x64, and Windows x64. The shell installer supports Apple Silicon macOS and Linux x64. Windows users can download the `.zip` asset and place `issue-jumper.exe` on `PATH`.
-
-Install with options:
-
-```sh
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key ctrl-shift-j
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --uninstall
-wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.0 --install-dir ~/.local/bin
-```
-
-For local development, build from source and install the Zed integration:
-
-```sh
-scripts/install-zed.sh
-```
-
-## Zed Integration
-
-`issue-jumper install-zed` writes or updates the global Zed `tasks.json` and `keymap.json` files.
-
-| Entry | Value |
-| --- | --- |
-| Task label | `Issue Jumper: Open Current Issue` |
-| Task command | `issue-jumper open --repo $ZED_WORKTREE_ROOT` |
-| Default Zed keymap entry | `alt alt` |
-| Manual entry | Command Palette -> `task: spawn` -> `Issue Jumper: Open Current Issue` |
-
-The default is documented as the key sequence written to Zed `keymap.json`; `alt alt` means pressing and releasing Option/Alt twice. Use `--key <key>` to select a binding that matches your platform and keyboard layout.
-
-Options:
-
-```sh
-issue-jumper install-zed --key ctrl-shift-j
-issue-jumper install-zed --force
-issue-jumper install-zed --print
-```
-
-`scripts/install.sh` and `scripts/install-zed.sh` pass `--force` by default for repeatable installs. Direct `issue-jumper install-zed` keeps key conflicts explicit unless `--force` is passed.
-
-The installer writes the absolute CLI path into the Zed task to avoid shell `PATH` differences between Zed and an interactive terminal.
-
-## Other Editor Integrations
-
-Issue Jumper can print ready-to-copy snippets for VS Code, Cursor, and generic editor or launcher integrations:
-
-```sh
-issue-jumper integration print --target vscode
-issue-jumper integration print --target cursor
-issue-jumper integration print --target generic
-```
-
-Use `--command <path>` to print snippets with an absolute CLI path when an editor does not inherit the same `PATH` as your shell. See [docs/integrations.md](docs/integrations.md) for examples.
-The `print` subcommand is optional, so `issue-jumper integration --target vscode` is equivalent.
-
-## Configuration
-
-Configuration is optional. Issue Jumper loads global config first, then overlays the first matching project config:
-
-1. `$XDG_CONFIG_HOME/issue-jumper/config.json` or `~/.config/issue-jumper/config.json`
-2. `<repo>/.zed/issue-jumper.json`
-3. `<repo>/.issue-jumper.json`
-
-On Windows, the global path is `%APPDATA%\issue-jumper\config.json`.
-
-Set `"clear_inherited_config": true` in a project config when that project should ignore inherited global config before applying its own fields.
-
-Lint all discovered config files for the current repository:
-
-```sh
-issue-jumper config lint
-issue-jumper config lint --repo /path/to/repo
-issue-jumper config lint --path /path/to/issue-jumper.json
-```
-
-Example Redmine override:
-
-```json
-{
-  "fallback_platform": "redmine",
-  "redmine_base_url": "https://redmine.example.com",
-  "disabled_rules": ["global-redmine-number"],
-  "issue_rules": [
-    {
-      "name": "redmine-number",
-      "pattern": "(?i)redmine[-_](?P<id>\\d+)",
-      "platform": "redmine"
-    }
-  ]
-}
-```
-
-Config files are strict JSON. Unknown fields are rejected.
-
-## CLI
-
-```sh
-issue-jumper open [--repo <path>] [--platform <name>] [--rule <name>]
-issue-jumper url [--repo <path>] [--platform <name>] [--rule <name>] [--print-url]
-issue-jumper install-zed [--key <key>] [--force] [--print]
-issue-jumper doctor [--repo <path>]
-issue-jumper config lint [--repo <path>] [--path <file>]
-issue-jumper integration [print] [--target vscode|cursor|generic|all] [--command <path>]
-```
-
-Development examples:
-
-```sh
-cargo run -- url --repo /path/to/repo --print-url
-cargo run -- open --repo /path/to/repo
-cargo run -- doctor --repo /path/to/repo
-cargo run -- config lint --repo /path/to/repo
-cargo run -- integration print --target vscode
-```
-
-## Development
-
-Run the standard local gate:
-
-```sh
-make check
-```
-
-Useful commands:
-
-```sh
-make fmt
-make lint
-make test
-make coverage
-```
-
-Validate the remote installer script:
-
-```sh
-sh -n scripts/install.sh
-```
-
-Build a local release archive:
-
-```sh
-scripts/package-release.sh --version v0.1.0
-```
-
-Publish a local release artifact:
-
-```sh
-scripts/publish-release.sh v0.1.0
-```
-
-Release artifacts are normally built by GitHub Actions when a `v*` tag is pushed. A release can also be rebuilt manually from the Actions tab by running the `Release` workflow with a tag such as `v0.1.0`.
 
 ## Documentation
 
-- [Technical design](docs/technical-design.md)
-- [Development guide](docs/development.md)
+| Document | Purpose |
+| --- | --- |
+| [Usage](docs/usage.md) | Installation, CLI, editor integrations, and config examples |
+| [Architecture](docs/architecture.md) | Runtime flow, module map, and architecture diagram |
+| [Technical design](docs/technical-design.md) | Design constraints and implementation decisions |
+| [Development](docs/development.md) | Local checks, coding rules, release workflow, and Homebrew notes |
+| [Integrations](docs/integrations.md) | VS Code, Cursor, and generic editor snippets |
+
+## Privacy
+
+Branch parsing, config loading, remote parsing, and URL generation happen locally. Issue Jumper does
+not collect telemetry and does not upload branch names, repository paths, Git remotes, config values,
+or issue IDs.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and run `make check` before opening a pull request.
 
 ## License
 
