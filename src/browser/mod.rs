@@ -58,6 +58,12 @@ mod tests {
         std::process::ExitStatus::from_raw(code << 8)
     }
 
+    #[cfg(windows)]
+    fn exit_status(code: u32) -> std::process::ExitStatus {
+        use std::os::windows::process::ExitStatusExt;
+        std::process::ExitStatus::from_raw(code)
+    }
+
     fn successful_opener(_: &BrowserCommand) -> io::Result<std::process::ExitStatus> {
         Ok(exit_status(0))
     }
@@ -123,6 +129,18 @@ mod tests {
 
     #[test]
     fn runs_browser_command() {
+        #[cfg(target_os = "windows")]
+        let command = BrowserCommand {
+            program: "cmd",
+            args: vec![
+                "/C".to_string(),
+                "exit".to_string(),
+                "/B".to_string(),
+                "0".to_string(),
+            ],
+        };
+
+        #[cfg(not(target_os = "windows"))]
         let command = BrowserCommand {
             program: "true",
             args: Vec::new(),
