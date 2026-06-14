@@ -125,6 +125,19 @@ jobs:
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve Homebrew metadata
+        id: metadata
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          version="${RELEASE_TAG#v}"
+          echo "homebrew_release_tag=issue-jumper-$version" >> "$GITHUB_OUTPUT"
+          echo "source_url=https://github.com/$GH_REPO/archive/refs/tags/$RELEASE_TAG.tar.gz" >> "$GITHUB_OUTPUT"
+
       - name: Download package artifacts
         uses: actions/download-artifact@v4
         with:
@@ -133,6 +146,7 @@ jobs:
           merge-multiple: true
 
       - name: Publish release assets
+        id: existing
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -141,7 +155,48 @@ jobs:
           tag="${{ steps.release.outputs.tag }}"
 
           if gh release view "$tag" >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
             gh release upload "$tag" dist/* --clobber
           else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
             gh release create "$tag" dist/* --title "$tag" --generate-notes
           fi
+
+      - name: Calculate source checksum
+        id: checksum
+        if: steps.existing.outputs.skip != 'true'
+        shell: bash
+        env:
+          SOURCE_URL: ${{ steps.metadata.outputs.source_url }}
+        run: |
+          set -euo pipefail
+
+          curl -fsSL "$SOURCE_URL" -o source.tar.gz
+          source_sha256="$(sha256sum source.tar.gz | awk '{print $1}')"
+          echo "source_sha256=$source_sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch Homebrew bottle workflow
+        if: steps.existing.outputs.skip != 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          TAP_REPOSITORY: weirdo-adam/homebrew-tap
+          FORMULA: issue-jumper
+          RELEASE_TAG: ${{ steps.metadata.outputs.homebrew_release_tag }}
+          SOURCE_URL: ${{ steps.metadata.outputs.source_url }}
+          SOURCE_SHA256: ${{ steps.checksum.outputs.source_sha256 }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "HOMEBREW_TAP_TOKEN secret is required to dispatch the Homebrew tap workflow" >&2
+            exit 1
+          fi
+
+          gh workflow run Bottle \
+            --repo "$TAP_REPOSITORY" \
+            --ref main \
+            -f formula="$FORMULA" \
+            -f release_tag="$RELEASE_TAG" \
+            -f source_url="$SOURCE_URL" \
+            -f source_sha256="$SOURCE_SHA256"

@@ -124,14 +124,16 @@ Users install from the tap with:
 brew install weirdo-adam/tap/issue-jumper
 ```
 
-The tap formula is `Formula/issue-jumper.rb`. For a new release:
+The main repository release workflow dispatches the tap repository's `Bottle` workflow after a new GitHub Release is created. The repository must have a `HOMEBREW_TAP_TOKEN` secret with permission to run workflows in `weirdo-adam/homebrew-tap`.
 
-1. Update the formula `tag` to the new version.
-2. Update the formula `revision` to the exact commit for that tag.
-3. Run `ruby -c Formula/issue-jumper.rb`.
-4. Commit and push the tap.
-5. Run the tap repository's `Bottle` workflow with the formula name and bottle release tag, for example `issue-jumper-0.1.0`.
-6. Confirm the workflow uploads the bottle asset and commits the merged `bottle do` block.
+The dispatch sends:
+
+- `formula`: `issue-jumper`
+- `release_tag`: the Homebrew bottle tag, for example `issue-jumper-0.1.0`
+- `source_url`: the GitHub source archive URL for the release tag
+- `source_sha256`: the SHA-256 checksum for that source archive
+
+Re-running the release workflow for an existing GitHub Release refreshes the release assets but does not dispatch Homebrew again.
 
 The formula keeps `rust` as a build dependency for source fallback, but supported Homebrew installs should pour a bottle so users do not download Rust or LLVM during normal installation. The formula intentionally does not run `issue-jumper install-zed`, because Homebrew formulae should not mutate user editor configuration during install.
 
