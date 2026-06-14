@@ -124,7 +124,7 @@ Users install from the tap with:
 brew install weirdo-adam/tap/issue-jumper
 ```
 
-The main repository release workflow dispatches the tap repository's `Bottle` workflow after a new GitHub Release is created. The repository must have a `HOMEBREW_TAP_TOKEN` secret with permission to run workflows in `weirdo-adam/homebrew-tap`.
+The main repository release workflow dispatches the tap repository's `Bottle` workflow after release assets are uploaded. This also happens when the workflow is re-run for an existing GitHub Release, so the tap receives the latest source URL and SHA-256 after asset refreshes. The repository must have a `HOMEBREW_TAP_TOKEN` secret with permission to run workflows in `weirdo-adam/homebrew-tap`.
 
 The dispatch sends:
 
@@ -133,7 +133,7 @@ The dispatch sends:
 - `source_url`: the GitHub source archive URL for the release tag
 - `source_sha256`: the SHA-256 checksum for that source archive
 
-Re-running the release workflow for an existing GitHub Release refreshes the release assets but does not dispatch Homebrew again.
+Re-running the release workflow for an existing GitHub Release refreshes assets, rewrites generated release notes, recalculates the source checksum, and dispatches Homebrew again.
 
 The formula keeps `rust` as a build dependency for source fallback, but supported Homebrew installs should pour a bottle so users do not download Rust or LLVM during normal installation. The formula intentionally does not run `issue-jumper install-zed`, because Homebrew formulae should not mutate user editor configuration during install.
 

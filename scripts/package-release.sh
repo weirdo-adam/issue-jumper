@@ -82,11 +82,23 @@ if [[ -z "$version" ]]; then
   version="$(sed -n 's/^version = "\(.*\)"/v\1/p' "$repo_dir/Cargo.toml" | head -n 1)"
 fi
 
+if [[ ! "$version" =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+  echo "package-release.sh: version must look like vX.Y.Z: $version" >&2
+  exit 2
+fi
+
+if [[ ! "$target" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "package-release.sh: target contains unsupported characters: $target" >&2
+  exit 2
+fi
+
 case "$target" in
   *windows*) binary_name="issue-jumper.exe"; archive_ext="zip" ;;
   *) binary_name="issue-jumper"; archive_ext="tar.gz" ;;
 esac
 
+mkdir -p "$out_dir"
+out_dir="$(cd "$out_dir" && pwd)"
 package_name="issue-jumper-${version}-${target}"
 package_dir="$out_dir/$package_name"
 
@@ -98,7 +110,6 @@ mkdir -p "$package_dir"
 cp "target/$target/release/$binary_name" "$package_dir/"
 cp README.md README.zh-CN.md LICENSE "$package_dir/"
 
-mkdir -p "$out_dir"
 if [[ "$archive_ext" == "zip" ]]; then
   archive="$out_dir/$package_name.zip"
   rm -f "$archive"

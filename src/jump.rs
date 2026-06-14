@@ -39,9 +39,10 @@ pub fn resolve_jump(options: JumpOptions) -> Result<JumpResult> {
     let config = load_config(&repo)?;
     let git = GitReader::new(repo.clone())?;
     let branch = git.current_branch()?;
+    let allow_repository_fallback = options.rule_name.is_none();
     let issue = match extract_issue(&branch, &config, options.rule_name.as_deref()) {
         Ok(issue) => issue,
-        Err(IssueJumperError::NoMatchingRule(branch)) => {
+        Err(IssueJumperError::NoMatchingRule(branch)) if allow_repository_fallback => {
             return resolve_repository_jump(repo, branch, &git, &config);
         }
         Err(err) => return Err(err),
@@ -260,6 +261,41 @@ mod tests {
         assert_eq!(result.platform, Platform::GitHub);
         assert_eq!(result.target, JumpTarget::Repository);
         assert_eq!(result.url, "https://github.com/owner/repo");
+    }
+
+    #[test]
+    fn does_not_fallback_to_repository_when_rule_override_does_not_match() {
+        let repo = temp_repo("github-rule-no-fallback");
+        git(&repo, ["init"]);
+        git(&repo, ["checkout", "-b", "main"]);
+        git(
+            &repo,
+            ["remote", "add", "origin", "git@github.com:owner/repo.git"],
+        );
+        fs::write(
+            repo.join(".issue-jumper.json"),
+            r#"{
+              "issue_rules": [
+                {
+                  "name": "ticket",
+                  "pattern": "TICKET-(?P<id>\\d+)"
+                }
+              ]
+            }"#,
+        )
+        .unwrap();
+
+        let err = resolve_jump(JumpOptions {
+            repo: Some(repo),
+            rule_name: Some("ticket".to_string()),
+            ..JumpOptions::default()
+        })
+        .unwrap_err();
+
+        assert!(matches!(
+            err,
+            crate::error::IssueJumperError::NoMatchingRule(branch) if branch == "main"
+        ));
     }
 
     #[test]

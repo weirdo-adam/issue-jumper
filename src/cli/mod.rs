@@ -95,7 +95,7 @@ fn print_help() {
     println!("  issue-jumper doctor [--repo <path>]");
     println!("  issue-jumper config lint [--repo <path>] [--path <file>]");
     println!(
-        "  issue-jumper integration print [--target vscode|cursor|generic|all] [--command <path>]"
+        "  issue-jumper integration [print] [--target vscode|cursor|generic|all] [--command <path>]"
     );
     println!("  issue-jumper --version");
 }

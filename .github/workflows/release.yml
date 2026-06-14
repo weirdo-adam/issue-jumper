@@ -41,7 +41,7 @@ jobs:
             tag="${GITHUB_REF_NAME}"
           fi
 
-          if [[ ! "$tag" =~ ^v[0-9]+[.][0-9]+[.][0-9]+ ]]; then
+          if [[ ! "$tag" =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
             echo "Invalid release tag: $tag" >&2
             exit 2
           fi
@@ -123,6 +123,12 @@ jobs:
           else
             tag="${GITHUB_REF_NAME}"
           fi
+
+          if [[ ! "$tag" =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+            echo "Invalid release tag: $tag" >&2
+            exit 2
+          fi
+
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Resolve Homebrew metadata
@@ -146,25 +152,29 @@ jobs:
           merge-multiple: true
 
       - name: Publish release assets
-        id: existing
+        id: release_assets
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
+
           tag="${{ steps.release.outputs.tag }}"
+          notes_file="$(mktemp)"
+          gh api "repos/$GH_REPO/releases/generate-notes" \
+            -f tag_name="$tag" \
+            -q .body > "$notes_file"
 
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
             gh release upload "$tag" dist/* --clobber
+            gh release edit "$tag" --title "$tag" --notes-file "$notes_file"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-            gh release create "$tag" dist/* --title "$tag" --generate-notes
+            gh release create "$tag" dist/* --title "$tag" --notes-file "$notes_file"
           fi
 
       - name: Calculate source checksum
         id: checksum
-        if: steps.existing.outputs.skip != 'true'
         shell: bash
         env:
           SOURCE_URL: ${{ steps.metadata.outputs.source_url }}
@@ -176,7 +186,6 @@ jobs:
           echo "source_sha256=$source_sha256" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch Homebrew bottle workflow
-        if: steps.existing.outputs.skip != 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}

@@ -166,6 +166,17 @@ mod tests {
     }
 
     #[test]
+    fn accepts_print_as_optional_subcommand() {
+        run(&[
+            "--target".to_string(),
+            "generic".to_string(),
+            "--command".to_string(),
+            "/opt/homebrew/bin/issue-jumper".to_string(),
+        ])
+        .unwrap();
+    }
+
+    #[test]
     fn quotes_shell_commands_with_spaces() {
         assert_eq!(
             shell_quote("/Applications/Issue Jumper"),

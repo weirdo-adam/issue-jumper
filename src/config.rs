@@ -12,6 +12,8 @@ pub struct UserConfig {
     pub fallback_platform: Option<String>,
     pub redmine_base_url: Option<String>,
     #[serde(default)]
+    pub clear_inherited_config: bool,
+    #[serde(default)]
     pub disabled_default_rules: Vec<String>,
     #[serde(default)]
     pub disabled_rules: Vec<String>,
@@ -23,6 +25,9 @@ pub struct UserConfig {
 
 impl UserConfig {
     fn merge_override(mut self, override_config: UserConfig) -> Self {
+        if override_config.clear_inherited_config {
+            self = UserConfig::default();
+        }
         if override_config.fallback_platform.is_some() {
             self.fallback_platform = override_config.fallback_platform;
         }
@@ -49,17 +54,19 @@ impl UserConfig {
             self.issue_rules = issue_rules;
         }
         if !override_config.custom_platforms.is_empty() {
-            let override_names: Vec<&str> = override_config
+            let override_names: HashSet<String> = override_config
                 .custom_platforms
                 .iter()
-                .map(|platform| platform.name.as_str())
+                .map(|platform| normalized_platform_name(&platform.name))
                 .collect();
-            self.custom_platforms
-                .retain(|platform| !override_names.contains(&platform.name.as_str()));
+            self.custom_platforms.retain(|platform| {
+                !override_names.contains(&normalized_platform_name(&platform.name))
+            });
             let mut custom_platforms = override_config.custom_platforms;
             custom_platforms.extend(self.custom_platforms);
             self.custom_platforms = custom_platforms;
         }
+        self.clear_inherited_config = false;
         self
     }
 }
@@ -316,13 +323,14 @@ fn lint_custom_platforms(
     let mut names = HashSet::new();
 
     for platform in platforms {
-        if platform.name.trim().is_empty() {
+        let normalized_name = normalized_platform_name(&platform.name);
+        if normalized_name.is_empty() {
             push_lint_error(
                 path,
                 "custom_platforms entries must have a non-empty name",
                 report,
             );
-        } else if !names.insert(platform.name.as_str()) {
+        } else if !names.insert(normalized_name) {
             push_lint_error(
                 path,
                 format!(
@@ -371,7 +379,7 @@ fn lint_platform_reference(
     let Some(value) = value else {
         return;
     };
-    let normalized = value.trim().to_ascii_lowercase();
+    let normalized = normalized_platform_name(value);
 
     if normalized.is_empty() {
         push_lint_error(
@@ -448,46 +456,72 @@ fn lint_url_template(
         );
     }
 
-    for placeholder in template_placeholders(&platform.url_template) {
-        if !matches!(
-            placeholder.as_str(),
-            "id" | "host" | "owner" | "repo" | "project" | "redmine_base_url"
-        ) {
-            push_lint_error(
-                path,
-                format!(
-                    "custom platform `{}` url_template uses unsupported placeholder `{{{placeholder}}}`",
-                    platform.name
-                ),
-                report,
-            );
+    match template_placeholders(&platform.url_template) {
+        Ok(placeholders) => {
+            for placeholder in placeholders {
+                if !matches!(
+                    placeholder.as_str(),
+                    "id" | "host" | "owner" | "repo" | "project" | "redmine_base_url"
+                ) {
+                    push_lint_error(
+                        path,
+                        format!(
+                            "custom platform `{}` url_template uses unsupported placeholder `{{{placeholder}}}`",
+                            platform.name
+                        ),
+                        report,
+                    );
+                }
+            }
         }
+        Err(message) => push_lint_error(
+            path,
+            format!("custom platform `{}` url_template {message}", platform.name),
+            report,
+        ),
     }
 }
 
-fn template_placeholders(template: &str) -> Vec<String> {
+fn template_placeholders(template: &str) -> std::result::Result<Vec<String>, &'static str> {
     let mut placeholders = Vec::new();
-    let mut rest = template;
+    let mut index = 0;
 
-    while let Some(start) = rest.find('{') {
-        let after_start = &rest[start + 1..];
-        let Some(end) = after_start.find('}') else {
-            placeholders.push(after_start.to_string());
-            break;
+    while let Some(start) = template[index..].find('{') {
+        let start = index + start;
+        if template[index..start].contains('}') {
+            return Err("contains an unmatched `}`");
+        }
+
+        let after_start = start + 1;
+        let Some(end) = template[after_start..].find('}') else {
+            return Err("contains an unmatched `{`");
         };
-        placeholders.push(after_start[..end].to_string());
-        rest = &after_start[end + 1..];
+        let end = after_start + end;
+        let placeholder = &template[after_start..end];
+        if placeholder.contains('{') {
+            return Err("contains nested `{` before `}`");
+        }
+        placeholders.push(placeholder.to_string());
+        index = end + 1;
     }
 
-    placeholders
+    if template[index..].contains('}') {
+        return Err("contains an unmatched `}`");
+    }
+
+    Ok(placeholders)
 }
 
 fn custom_platform_names(config: &UserConfig) -> HashSet<String> {
     config
         .custom_platforms
         .iter()
-        .map(|platform| platform.name.to_ascii_lowercase())
+        .map(|platform| normalized_platform_name(&platform.name))
         .collect()
+}
+
+fn normalized_platform_name(value: &str) -> String {
+    value.trim().to_ascii_lowercase()
 }
 
 fn is_builtin_platform(value: &str) -> bool {
@@ -675,6 +709,51 @@ mod tests {
     }
 
     #[test]
+    fn project_config_can_clear_inherited_config() {
+        let dir = temp_dir("clear-inherited");
+        let global = temp_dir("global-clear-config").join("config.json");
+        fs::create_dir_all(&dir).unwrap();
+        fs::create_dir_all(global.parent().unwrap()).unwrap();
+        fs::write(
+            &global,
+            r#"{
+              "fallback_platform": "redmine",
+              "redmine_base_url": "https://redmine.global.example.com",
+              "issue_rules": [
+                {
+                  "name": "global-redmine",
+                  "pattern": "global-(?P<id>\\d+)",
+                  "platform": "redmine"
+                }
+              ],
+              "custom_platforms": [
+                {
+                  "name": "jira",
+                  "url_template": "https://jira.example.com/browse/{id}"
+                }
+              ]
+            }"#,
+        )
+        .unwrap();
+        fs::write(
+            dir.join(".issue-jumper.json"),
+            r#"{
+              "clear_inherited_config": true,
+              "fallback_platform": "github"
+            }"#,
+        )
+        .unwrap();
+
+        let config = load_config_from(&dir, Some(global)).unwrap();
+
+        assert_eq!(config.fallback_platform.as_deref(), Some("github"));
+        assert!(config.redmine_base_url.is_none());
+        assert!(config.issue_rules.is_empty());
+        assert!(config.custom_platforms.is_empty());
+        assert!(!config.clear_inherited_config);
+    }
+
+    #[test]
     fn lint_accepts_valid_explicit_config() {
         let dir = temp_dir("lint-valid");
         let path = dir.join("config.json");
@@ -757,6 +836,68 @@ mod tests {
                 .errors
                 .iter()
                 .any(|error| error.message.contains("unknown platform"))
+        );
+    }
+
+    #[test]
+    fn lint_rejects_duplicate_custom_platform_names_ignoring_case() {
+        let dir = temp_dir("lint-platform-case");
+        let path = dir.join("config.json");
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(
+            &path,
+            r#"{
+              "custom_platforms": [
+                {
+                  "name": "Jira",
+                  "url_template": "https://jira.example.com/browse/{id}"
+                },
+                {
+                  "name": "jira",
+                  "url_template": "https://jira-alt.example.com/browse/{id}"
+                }
+              ]
+            }"#,
+        )
+        .unwrap();
+
+        let report = lint_config(&dir, &[path]);
+
+        assert!(!report.is_ok());
+        assert!(
+            report
+                .errors
+                .iter()
+                .any(|error| error.message.contains("defined more than once"))
+        );
+    }
+
+    #[test]
+    fn lint_rejects_unmatched_url_template_braces() {
+        let dir = temp_dir("lint-template-braces");
+        let path = dir.join("config.json");
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(
+            &path,
+            r#"{
+              "custom_platforms": [
+                {
+                  "name": "jira",
+                  "url_template": "https://jira.example.com/browse/{id}}"
+                }
+              ]
+            }"#,
+        )
+        .unwrap();
+
+        let report = lint_config(&dir, &[path]);
+
+        assert!(!report.is_ok());
+        assert!(
+            report
+                .errors
+                .iter()
+                .any(|error| error.message.contains("unmatched `}`"))
         );
     }
 

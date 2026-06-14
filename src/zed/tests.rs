@@ -349,6 +349,25 @@ fn refuses_existing_task_label_with_foreign_command() {
 }
 
 #[test]
+fn refuses_existing_task_label_with_issue_jumper_substring_command() {
+    let dir = temp_dir("foreign-substring-task");
+    fs::create_dir_all(&dir).unwrap();
+    fs::write(
+        dir.join("tasks.json"),
+        format!(r#"[{{"label":"{TASK_LABEL}","command":"/bin/not-issue-jumper-wrapper"}}]"#),
+    )
+    .unwrap();
+    let task = task_template(Path::new("/usr/local/bin/issue-jumper"));
+    let keymap = keymap_template("alt-i");
+
+    let err = install_zed_into_dir(&dir, task, keymap, "alt-i", false).unwrap_err();
+
+    assert!(
+        matches!(err, IssueJumperError::ZedConfigInvalidJson(message) if message.contains("different command"))
+    );
+}
+
+#[test]
 fn force_overwrites_foreign_key_binding() {
     let dir = temp_dir("force-key");
     fs::create_dir_all(&dir).unwrap();
@@ -422,6 +441,21 @@ fn write_json_array_reports_write_error() {
     let err = write_json_array(&path, Vec::new()).unwrap_err();
 
     assert!(matches!(err, IssueJumperError::Io(_)));
+}
+
+#[test]
+fn write_json_array_replaces_existing_file_without_temp_leftover() {
+    let dir = temp_dir("atomic-write");
+    fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("tasks.json");
+    fs::write(&path, r#"[{"label":"old"}]"#).unwrap();
+
+    write_json_array(&path, vec![json!({"label": "new"})]).unwrap();
+
+    let tasks = read_json_array(&path).unwrap();
+    assert_eq!(tasks[0]["label"], "new");
+    assert!(dir.join("tasks.json.bak").exists());
+    assert!(!temp_json_path(&path).exists());
 }
 
 #[test]

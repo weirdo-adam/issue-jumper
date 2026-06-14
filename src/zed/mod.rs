@@ -1,5 +1,6 @@
 use serde_json::{Value, json};
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use crate::error::{IssueJumperError, Result};
@@ -139,10 +140,17 @@ fn merge_task(path: &Path, tasks: &mut Vec<Value>, task: Value) -> Result<()> {
 }
 
 fn is_issue_jumper_command(command: &str) -> bool {
+    let command = command.trim().trim_matches('"').trim_matches('\'');
+    let binary_name = command
+        .rsplit(['/', '\\'])
+        .next()
+        .filter(|name| !name.is_empty())
+        .unwrap_or(command);
+
     CURRENT_BINARY_NAMES
         .iter()
         .chain(LEGACY_BINARY_NAMES.iter())
-        .any(|name| command.ends_with(name) || command.contains(name))
+        .any(|name| binary_name == *name)
 }
 
 fn merge_keymap(keymaps: &mut Vec<Value>, keymap: Value, key: &str, force: bool) -> Result<()> {
@@ -229,8 +237,36 @@ fn write_json_array(path: &Path, value: Vec<Value>) -> Result<()> {
     }
     let text =
         serde_json::to_string_pretty(&value).expect("serializing JSON Value should not fail");
-    fs::write(path, format!("{text}\n"))?;
+    let temp_path = temp_json_path(path);
+    let mut file = fs::File::create(&temp_path)?;
+    file.write_all(format!("{text}\n").as_bytes())?;
+    file.sync_all()?;
+    drop(file);
+    replace_file(&temp_path, path)?;
     Ok(())
+}
+
+fn temp_json_path(path: &Path) -> PathBuf {
+    let file_name = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("config.json");
+    path.with_file_name(format!(".{file_name}.tmp-{}", std::process::id()))
+}
+
+fn replace_file(temp_path: &Path, path: &Path) -> Result<()> {
+    #[cfg(windows)]
+    if path.exists() {
+        fs::remove_file(path)?;
+    }
+
+    match fs::rename(temp_path, path) {
+        Ok(()) => Ok(()),
+        Err(err) => {
+            let _ = fs::remove_file(temp_path);
+            Err(err.into())
+        }
+    }
 }
 
 fn zed_config_dir() -> Option<PathBuf> {

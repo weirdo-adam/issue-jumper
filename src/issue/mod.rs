@@ -31,6 +31,12 @@ pub fn extract_issue(
         rules.iter().collect()
     };
 
+    if active_rules.is_empty()
+        && let Some(name) = rule_name
+    {
+        return Err(IssueJumperError::UnknownRule(name.to_string()));
+    }
+
     for rule in active_rules {
         if let Some(captures) = rule.pattern.captures(branch)
             && let Some(value) = captures.name("id")
@@ -189,6 +195,15 @@ mod tests {
         assert!(
             matches!(err, IssueJumperError::NoMatchingRule(branch) if branch == "feature/disabled-42")
         );
+    }
+
+    #[test]
+    fn reports_unknown_rule_filter() {
+        let config = UserConfig::default();
+
+        let err = extract_issue("feature/GH-123", &config, Some("missing-rule")).unwrap_err();
+
+        assert!(matches!(err, IssueJumperError::UnknownRule(rule) if rule == "missing-rule"));
     }
 
     #[test]
