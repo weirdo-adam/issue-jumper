@@ -285,6 +285,7 @@ issue-jumper url  [--repo <path>] [--platform <name>] [--rule <name>] [--print-u
 issue-jumper install-zed [--key <key>] [--force] [--print]
 issue-jumper doctor [--repo <path>]
 issue-jumper config lint [--repo <path>] [--path <file>]
+issue-jumper integration print [--target vscode|cursor|generic|all] [--command <path>]
 ```
 
 | 命令 | 用途 |
@@ -294,6 +295,7 @@ issue-jumper config lint [--repo <path>] [--path <file>]
 | `install-zed` | 写入 Zed task/keymap 集成 |
 | `doctor` | 检查 git、repo、branch、remote、配置和生成 URL |
 | `config lint` | 检查配置文件 JSON、字段、规则正则、平台引用和 URL 模板 |
+| `integration print` | 输出 VS Code、Cursor 或通用编辑器集成示例，不直接写编辑器配置 |
 
 ### 5.2 `open` 行为
 

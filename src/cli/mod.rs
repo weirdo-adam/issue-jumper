@@ -6,6 +6,7 @@ use crate::platform::Platform;
 mod config_lint;
 mod doctor;
 mod install_zed;
+mod integration;
 mod open;
 mod url;
 
@@ -30,6 +31,7 @@ pub fn run(args: Vec<String>) -> Result<()> {
         "doctor" => doctor::run(&args[1..]),
         "config" => config_lint::run_config_command(&args[1..]),
         "lint-config" => config_lint::run_lint(&args[1..]),
+        "integration" => integration::run(&args[1..]),
         "-h" | "--help" | "help" => {
             print_help();
             Ok(())
@@ -92,6 +94,9 @@ fn print_help() {
     println!("  issue-jumper install-zed [--key <key>] [--force] [--print]");
     println!("  issue-jumper doctor [--repo <path>]");
     println!("  issue-jumper config lint [--repo <path>] [--path <file>]");
+    println!(
+        "  issue-jumper integration print [--target vscode|cursor|generic|all] [--command <path>]"
+    );
     println!("  issue-jumper --version");
 }
 

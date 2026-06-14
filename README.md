@@ -134,6 +134,18 @@ issue-jumper install-zed --print
 
 The installer writes the absolute CLI path into the Zed task to avoid shell `PATH` differences between Zed and an interactive terminal.
 
+## Other Editor Integrations
+
+Issue Jumper can print ready-to-copy snippets for VS Code, Cursor, and generic editor or launcher integrations:
+
+```sh
+issue-jumper integration print --target vscode
+issue-jumper integration print --target cursor
+issue-jumper integration print --target generic
+```
+
+Use `--command <path>` to print snippets with an absolute CLI path when an editor does not inherit the same `PATH` as your shell. See [docs/integrations.md](docs/integrations.md) for examples.
+
 ## Configuration
 
 Configuration is optional. Issue Jumper loads global config first, then overlays the first matching project config:
@@ -179,6 +191,7 @@ issue-jumper url [--repo <path>] [--platform <name>] [--rule <name>] [--print-ur
 issue-jumper install-zed [--key <key>] [--force] [--print]
 issue-jumper doctor [--repo <path>]
 issue-jumper config lint [--repo <path>] [--path <file>]
+issue-jumper integration print [--target vscode|cursor|generic|all] [--command <path>]
 ```
 
 Development examples:
@@ -188,6 +201,7 @@ cargo run -- url --repo /path/to/repo --print-url
 cargo run -- open --repo /path/to/repo
 cargo run -- doctor --repo /path/to/repo
 cargo run -- config lint --repo /path/to/repo
+cargo run -- integration print --target vscode
 ```
 
 ## Development

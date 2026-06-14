@@ -71,6 +71,31 @@ fn binary_lints_explicit_config_file() {
 }
 
 #[test]
+fn binary_prints_vscode_integration_snippets() {
+    let output = Command::new(env!("CARGO_BIN_EXE_issue-jumper"))
+        .args([
+            "integration",
+            "print",
+            "--target",
+            "vscode",
+            "--command",
+            "/opt/homebrew/bin/issue-jumper",
+        ])
+        .output()
+        .unwrap();
+
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains(".vscode/tasks.json"));
+    assert!(stdout.contains("workbench.action.tasks.runTask"));
+    assert!(stdout.contains("${workspaceFolder}"));
+}
+
+#[test]
 fn binary_prints_zed_snippets_without_writing_config() {
     let output = Command::new(env!("CARGO_BIN_EXE_issue-jumper"))
         .args(["install-zed", "--print"])

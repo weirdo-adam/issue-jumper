@@ -88,13 +88,13 @@ The task/keymap integration keeps the shortcut path explicit:
 
 The shortcut path stays on built-in Zed task/keymap primitives so the one-key browser opening path works without relying on unpublished Zed action APIs.
 
-Future editor or launcher integrations should follow this structure: add a narrow installer command and target module, then call the same `open`, `url`, and `doctor` workflow rather than duplicating branch parsing or URL construction.
+Future editor or launcher integrations should follow this structure: add a narrow installer command or printable snippet generator, then call the same `open`, `url`, and `doctor` workflow rather than duplicating branch parsing or URL construction.
 
-Next integration candidates:
+Current non-Zed integrations are printable examples, not automatic installers:
 
-- VS Code: provide task/keybinding setup that runs `issue-jumper open --repo ${workspaceFolder}`.
-- Cursor: reuse the VS Code-compatible integration path where possible.
-- Generic editors: document a minimal command example for tools that can bind a shortcut to a shell command.
+- VS Code: `issue-jumper integration print --target vscode` emits task/keybinding snippets that run `issue-jumper open --repo ${workspaceFolder}`.
+- Cursor: `issue-jumper integration print --target cursor` reuses the VS Code-compatible task/keybinding shape.
+- Generic editors: `issue-jumper integration print --target generic` documents command examples for tools that can bind a shortcut to a shell command.
 
 Keep these integrations as thin adapters around the CLI. Editor-specific code should write configuration or examples only; branch parsing, remote parsing, and URL generation stay in the shared core.
 
