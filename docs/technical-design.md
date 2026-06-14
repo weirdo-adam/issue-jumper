@@ -284,6 +284,7 @@ issue-jumper open [--repo <path>] [--platform <name>] [--rule <name>]
 issue-jumper url  [--repo <path>] [--platform <name>] [--rule <name>] [--print-url]
 issue-jumper install-zed [--key <key>] [--force] [--print]
 issue-jumper doctor [--repo <path>]
+issue-jumper config lint [--repo <path>] [--path <file>]
 ```
 
 | 命令 | 用途 |
@@ -292,6 +293,7 @@ issue-jumper doctor [--repo <path>]
 | `url` | 输出 URL，用于测试和脚本集成 |
 | `install-zed` | 写入 Zed task/keymap 集成 |
 | `doctor` | 检查 git、repo、branch、remote、配置和生成 URL |
+| `config lint` | 检查配置文件 JSON、字段、规则正则、平台引用和 URL 模板 |
 
 ### 5.2 `open` 行为
 
@@ -675,7 +677,7 @@ pub enum IssueJumperError {
 | `issue` | 默认规则、自定义规则、优先级、命名捕获组校验 |
 | `git::remote` | SSH、HTTPS、SSH URL、Git protocol、多级 GitLab project |
 | `url` | 各平台模板、字段缺失、URL 编码、GitLab project 分段编码 |
-| `config` | 配置读取优先级、非法 JSON、非法正则、禁用默认规则 |
+| `config` | 配置读取优先级、非法 JSON、非法正则、禁用默认规则、lint 语义校验 |
 | `zed` | tasks/keymap JSON 合并、冲突检测、备份逻辑 |
 | `browser` | 平台命令选择、URL scheme 校验、失败回退 |
 

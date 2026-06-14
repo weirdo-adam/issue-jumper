@@ -144,6 +144,14 @@ Configuration is optional. Issue Jumper loads global config first, then overlays
 
 On Windows, the global path is `%APPDATA%\issue-jumper\config.json`.
 
+Lint all discovered config files for the current repository:
+
+```sh
+issue-jumper config lint
+issue-jumper config lint --repo /path/to/repo
+issue-jumper config lint --path /path/to/issue-jumper.json
+```
+
 Example Redmine override:
 
 ```json
@@ -170,6 +178,7 @@ issue-jumper open [--repo <path>] [--platform <name>] [--rule <name>]
 issue-jumper url [--repo <path>] [--platform <name>] [--rule <name>] [--print-url]
 issue-jumper install-zed [--key <key>] [--force] [--print]
 issue-jumper doctor [--repo <path>]
+issue-jumper config lint [--repo <path>] [--path <file>]
 ```
 
 Development examples:
@@ -178,6 +187,7 @@ Development examples:
 cargo run -- url --repo /path/to/repo --print-url
 cargo run -- open --repo /path/to/repo
 cargo run -- doctor --repo /path/to/repo
+cargo run -- config lint --repo /path/to/repo
 ```
 
 ## Development

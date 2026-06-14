@@ -38,6 +38,39 @@ fn binary_reports_unknown_command_failure() {
 }
 
 #[test]
+fn binary_lints_explicit_config_file() {
+    let dir = temp_dir("config-lint");
+    std::fs::create_dir_all(&dir).unwrap();
+    let config = dir.join("issue-jumper.json");
+    std::fs::write(
+        &config,
+        r#"{
+          "issue_rules": [
+            {
+              "name": "ticket",
+              "pattern": "TICKET-(?P<id>\\d+)",
+              "platform": "github"
+            }
+          ]
+        }"#,
+    )
+    .unwrap();
+
+    let output = Command::new(env!("CARGO_BIN_EXE_issue-jumper"))
+        .args(["config", "lint", "--path"])
+        .arg(&config)
+        .output()
+        .unwrap();
+
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(String::from_utf8_lossy(&output.stdout).contains("OK"));
+}
+
+#[test]
 fn binary_prints_zed_snippets_without_writing_config() {
     let output = Command::new(env!("CARGO_BIN_EXE_issue-jumper"))
         .args(["install-zed", "--print"])

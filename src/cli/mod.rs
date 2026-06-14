@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use crate::error::{IssueJumperError, Result};
 use crate::platform::Platform;
 
+mod config_lint;
 mod doctor;
 mod install_zed;
 mod open;
@@ -27,6 +28,8 @@ pub fn run(args: Vec<String>) -> Result<()> {
         "url" => url::run(&args[1..]),
         "install-zed" => install_zed::run(&args[1..]),
         "doctor" => doctor::run(&args[1..]),
+        "config" => config_lint::run_config_command(&args[1..]),
+        "lint-config" => config_lint::run_lint(&args[1..]),
         "-h" | "--help" | "help" => {
             print_help();
             Ok(())
@@ -88,6 +91,7 @@ fn print_help() {
     );
     println!("  issue-jumper install-zed [--key <key>] [--force] [--print]");
     println!("  issue-jumper doctor [--repo <path>]");
+    println!("  issue-jumper config lint [--repo <path>] [--path <file>]");
     println!("  issue-jumper --version");
 }
 
@@ -98,6 +102,9 @@ fn print_version() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     #[test]
     fn prints_help_without_command() {
@@ -127,6 +134,20 @@ mod tests {
     }
 
     #[test]
+    fn accepts_config_lint_alias_without_configs() {
+        let path = temp_dir("config-lint-alias").join("issue-jumper.json");
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(&path, "{}").unwrap();
+
+        run(vec![
+            "lint-config".to_string(),
+            "--path".to_string(),
+            path.display().to_string(),
+        ])
+        .unwrap();
+    }
+
+    #[test]
     fn parses_jump_arguments() {
         let parsed = parse_jump_args(&[
             "--repo".to_string(),
@@ -151,5 +172,13 @@ mod tests {
             let err = parse_jump_args(&[arg.to_string()]).unwrap_err();
             assert!(matches!(err, IssueJumperError::Usage(_)));
         }
+    }
+
+    fn temp_dir(label: &str) -> PathBuf {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        std::env::temp_dir().join(format!("issue-jumper-cli-{label}-{nonce}"))
     }
 }
