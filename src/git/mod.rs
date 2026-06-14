@@ -131,7 +131,10 @@ mod tests {
     use std::fs;
     use std::path::Path;
     use std::process::Command;
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
     #[test]
     fn rejects_invalid_repo_path() {
@@ -389,7 +392,8 @@ exit /B 1
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        std::env::temp_dir().join(format!("issue-jumper-git-{label}-{nonce}"))
+        let counter = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+        std::env::temp_dir().join(format!("issue-jumper-git-{label}-{nonce}-{counter}"))
     }
 
     fn git<const N: usize>(repo: &Path, args: [&str; N]) {
@@ -420,19 +424,25 @@ exit /B 1
         #[cfg(not(windows))]
         let path = temp_dir(label).join("git");
         fs::create_dir_all(path.parent().unwrap()).unwrap();
+
+        let temp_path = path.with_file_name(format!(
+            "{}.tmp",
+            path.file_name().unwrap().to_string_lossy()
+        ));
         #[cfg(windows)]
-        fs::write(&path, _windows_script).unwrap();
+        fs::write(&temp_path, _windows_script).unwrap();
         #[cfg(not(windows))]
-        fs::write(&path, _unix_script).unwrap();
+        fs::write(&temp_path, _unix_script).unwrap();
 
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            let mut permissions = fs::metadata(&path).unwrap().permissions();
+            let mut permissions = fs::metadata(&temp_path).unwrap().permissions();
             permissions.set_mode(0o755);
-            fs::set_permissions(&path, permissions).unwrap();
+            fs::set_permissions(&temp_path, permissions).unwrap();
         }
 
+        fs::rename(&temp_path, &path).unwrap();
         path
     }
 }
