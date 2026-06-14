@@ -236,6 +236,14 @@ if [ "$3" = "rev-parse" ]; then
 fi
 exit 1
 "#,
+            r#"@echo off
+if "%3"=="branch" exit /B 0
+if "%3"=="rev-parse" (
+  echo feature/fallback
+  exit /B 0
+)
+exit /B 1
+"#,
         );
         let reader = GitReader::with_git_binary(repo, git).unwrap();
 
@@ -253,6 +261,10 @@ if [ "$3" = "branch" ]; then
   exit 0
 fi
 exit 1
+"#,
+            r#"@echo off
+if "%3"=="branch" exit /B 0
+exit /B 1
 "#,
         );
         let reader = GitReader::with_git_binary(repo, git).unwrap();
@@ -279,6 +291,17 @@ if [ "$3" = "rev-parse" ]; then
 fi
 exit 1
 "#,
+            r#"@echo off
+if "%3"=="branch" (
+  echo temporary branch failure 1>&2
+  exit /B 1
+)
+if "%3"=="rev-parse" (
+  echo feature/recovered
+  exit /B 0
+)
+exit /B 1
+"#,
         );
         let reader = GitReader::with_git_binary(repo, git).unwrap();
 
@@ -297,6 +320,11 @@ if [ "$3" = "branch" ]; then
 fi
 echo "fatal: not in a git directory" >&2
 exit 1
+"#,
+            r#"@echo off
+if "%3"=="branch" exit /B 0
+echo fatal: not in a git directory 1>&2
+exit /B 1
 "#,
         );
         let reader = GitReader::with_git_binary(repo, git).unwrap();
@@ -317,6 +345,10 @@ if [ "$3" = "remote" ]; then
   exit 0
 fi
 exit 1
+"#,
+            r#"@echo off
+if "%3"=="remote" exit /B 0
+exit /B 1
 "#,
         );
         let reader = GitReader::with_git_binary(repo, git).unwrap();
@@ -382,10 +414,16 @@ exit 1
         String::from_utf8(output.stdout).unwrap()
     }
 
-    fn fake_git(label: &str, script: &str) -> PathBuf {
+    fn fake_git(label: &str, _unix_script: &str, _windows_script: &str) -> PathBuf {
+        #[cfg(windows)]
+        let path = temp_dir(label).join("git.bat");
+        #[cfg(not(windows))]
         let path = temp_dir(label).join("git");
         fs::create_dir_all(path.parent().unwrap()).unwrap();
-        fs::write(&path, script).unwrap();
+        #[cfg(windows)]
+        fs::write(&path, _windows_script).unwrap();
+        #[cfg(not(windows))]
+        fs::write(&path, _unix_script).unwrap();
 
         #[cfg(unix)]
         {
