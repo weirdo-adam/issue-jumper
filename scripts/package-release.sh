@@ -16,8 +16,8 @@ the current host target.
 
 Examples:
   scripts/package-release.sh
-  scripts/package-release.sh --version v0.1.1
-  scripts/package-release.sh --target aarch64-apple-darwin --version v0.1.1
+  scripts/package-release.sh --version v0.1.2
+  scripts/package-release.sh --target aarch64-apple-darwin --version v0.1.2
 USAGE
 }
 
