@@ -285,7 +285,7 @@ issue-jumper url  [--repo <path>] [--platform <name>] [--rule <name>] [--print-u
 issue-jumper install-zed [--key <key>] [--force] [--print]
 issue-jumper doctor [--repo <path>]
 issue-jumper config lint [--repo <path>] [--path <file>]
-issue-jumper integration print [--target vscode|cursor|generic|all] [--command <path>]
+issue-jumper integration [print] [--target vscode|cursor|generic|all] [--command <path>]
 ```
 
 | 命令 | 用途 |
@@ -295,7 +295,7 @@ issue-jumper integration print [--target vscode|cursor|generic|all] [--command <
 | `install-zed` | 写入 Zed task/keymap 集成 |
 | `doctor` | 检查 git、repo、branch、remote、配置和生成 URL |
 | `config lint` | 检查配置文件 JSON、字段、规则正则、平台引用和 URL 模板 |
-| `integration print` | 输出 VS Code、Cursor 或通用编辑器集成示例，不直接写编辑器配置 |
+| `integration [print]` | 输出 VS Code、Cursor 或通用编辑器集成示例，不直接写编辑器配置 |
 
 ### 5.2 `open` 行为
 
@@ -480,6 +480,7 @@ Windows 全局路径为 `%APPDATA%\issue-jumper\config.json`。
 | --- | --- | --- | --- |
 | `fallback_platform` | string | 否 | 规则和 remote 都无法确定平台时使用的平台 |
 | `redmine_base_url` | string | Redmine 场景必填 | Redmine 不从 Git remote 自动推导 |
+| `clear_inherited_config` | boolean | 否 | 项目配置设为 `true` 时先清空已继承的全局配置，再应用当前文件 |
 | `disabled_default_rules` | string[] | 否 | 禁用内置分支匹配规则 |
 | `disabled_rules` | string[] | 否 | 禁用全局或项目自定义规则，项目配置可用它关闭全局规则 |
 | `issue_rules[].name` | string | 是 | 规则唯一名 |
@@ -487,7 +488,7 @@ Windows 全局路径为 `%APPDATA%\issue-jumper\config.json`。
 | `issue_rules[].platform` | string | 否 | 匹配后强制指定平台 |
 | `custom_platforms[].name` | string | 是 | 自定义平台名 |
 | `custom_platforms[].host_patterns` | string[] | 否 | remote host 匹配 |
-| `custom_platforms[].url_template` | string | 是 | 支持 `{id}`、`{host}`、`{owner}`、`{repo}`、`{project}` |
+| `custom_platforms[].url_template` | string | 是 | 支持 `{id}`、`{host}`、`{owner}`、`{repo}`、`{project}`、`{redmine_base_url}` |
 
 ### 8.4 高级定制跳转
 

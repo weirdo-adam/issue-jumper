@@ -80,7 +80,7 @@ wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/script
 
 The installer downloads the supported Unix host archive from [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases), installs `issue-jumper` to `~/.local/bin`, and runs `issue-jumper install-zed --force`.
 
-Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced. Pass `--uninstall` to remove the copy installed by this script.
+Repeated runs replace the existing `issue-jumper` binary and refresh the Zed task/keymap binding. Pass `--no-force` if key conflicts should fail instead of being replaced. Pass `--uninstall` to remove the copy installed by this script. The uninstall path verifies the target before deleting it; pass `--force-uninstall` only for an unknown same-name file you intentionally want to remove.
 
 Avoid mixing install sources when possible. If Homebrew and `~/.local/bin/issue-jumper` both exist, the first directory in `PATH` wins in the terminal, while Zed uses the absolute command path written by the last `install-zed` run. To move an existing setup to Homebrew:
 
@@ -145,6 +145,7 @@ issue-jumper integration print --target generic
 ```
 
 Use `--command <path>` to print snippets with an absolute CLI path when an editor does not inherit the same `PATH` as your shell. See [docs/integrations.md](docs/integrations.md) for examples.
+The `print` subcommand is optional, so `issue-jumper integration --target vscode` is equivalent.
 
 ## Configuration
 
@@ -155,6 +156,8 @@ Configuration is optional. Issue Jumper loads global config first, then overlays
 3. `<repo>/.issue-jumper.json`
 
 On Windows, the global path is `%APPDATA%\issue-jumper\config.json`.
+
+Set `"clear_inherited_config": true` in a project config when that project should ignore inherited global config before applying its own fields.
 
 Lint all discovered config files for the current repository:
 
@@ -191,7 +194,7 @@ issue-jumper url [--repo <path>] [--platform <name>] [--rule <name>] [--print-ur
 issue-jumper install-zed [--key <key>] [--force] [--print]
 issue-jumper doctor [--repo <path>]
 issue-jumper config lint [--repo <path>] [--path <file>]
-issue-jumper integration print [--target vscode|cursor|generic|all] [--command <path>]
+issue-jumper integration [print] [--target vscode|cursor|generic|all] [--command <path>]
 ```
 
 Development examples:

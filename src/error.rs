@@ -8,6 +8,7 @@ pub enum IssueJumperError {
     DetachedHead,
     RemoteParseFailed(String),
     NoMatchingRule(String),
+    UnknownRule(String),
     InvalidConfig(String),
     PlatformUnresolved,
     UrlBuildFailed(String),
@@ -22,7 +23,10 @@ pub enum IssueJumperError {
 impl IssueJumperError {
     pub fn exit_code(&self) -> i32 {
         match self {
-            Self::NoMatchingRule(_) | Self::PlatformUnresolved | Self::UrlBuildFailed(_) => 1,
+            Self::NoMatchingRule(_)
+            | Self::UnknownRule(_)
+            | Self::PlatformUnresolved
+            | Self::UrlBuildFailed(_) => 1,
             Self::InvalidConfig(_) => 2,
             Self::GitNotFound
             | Self::RepoPathInvalid(_)
@@ -53,6 +57,7 @@ impl fmt::Display for IssueJumperError {
                 write!(f, "Failed to parse Git remote URL: {remote}")
             }
             Self::NoMatchingRule(branch) => write!(f, "No issue ID matched branch \"{branch}\"."),
+            Self::UnknownRule(rule) => write!(f, "Unknown issue rule \"{rule}\"."),
             Self::InvalidConfig(message) => write!(f, "Invalid Issue Jumper config: {message}"),
             Self::PlatformUnresolved => {
                 write!(
@@ -98,6 +103,7 @@ mod tests {
             (IssueJumperError::RemoteParseFailed("bad".to_string()), 1),
             (IssueJumperError::Io("io".to_string()), 1),
             (IssueJumperError::Usage("usage".to_string()), 1),
+            (IssueJumperError::UnknownRule("missing".to_string()), 1),
             (IssueJumperError::InvalidConfig("bad".to_string()), 2),
             (IssueJumperError::GitNotFound, 3),
             (IssueJumperError::RepoPathInvalid("/x".to_string()), 3),
@@ -123,6 +129,7 @@ mod tests {
             IssueJumperError::DetachedHead,
             IssueJumperError::RemoteParseFailed("remote".to_string()),
             IssueJumperError::NoMatchingRule("main".to_string()),
+            IssueJumperError::UnknownRule("missing".to_string()),
             IssueJumperError::InvalidConfig("bad".to_string()),
             IssueJumperError::PlatformUnresolved,
             IssueJumperError::UrlBuildFailed("bad".to_string()),

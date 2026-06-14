@@ -80,7 +80,7 @@ wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/script
 
 安装器会从 [GitHub Releases](https://github.com/weirdo-adam/issue-jumper/releases) 下载受支持 Unix 主机对应的压缩包，将 `issue-jumper` 安装到 `~/.local/bin`，并执行 `issue-jumper install-zed --force`。
 
-重复执行安装命令会覆盖已有的 `issue-jumper` 二进制，并刷新 Zed task/keymap 绑定。如需在快捷键冲突时失败而不是覆盖，可传入 `--no-force`。
+重复执行安装命令会覆盖已有的 `issue-jumper` 二进制，并刷新 Zed task/keymap 绑定。如需在快捷键冲突时失败而不是覆盖，可传入 `--no-force`。如需删除该脚本安装的副本，传入 `--uninstall`；卸载时会先校验目标，只有确认要删除未知同名文件时才使用 `--force-uninstall`。
 
 GitHub Releases 会发布 Apple Silicon macOS、Linux x64 和 Windows x64 的预构建压缩包。shell 安装器支持 Apple Silicon macOS 和 Linux x64。Windows 用户可下载 `.zip` 资产，并将 `issue-jumper.exe` 放到 `PATH` 中。
 
@@ -90,6 +90,7 @@ GitHub Releases 会发布 Apple Silicon macOS、Linux x64 和 Windows x64 的预
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --key ctrl-shift-j
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-force
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --no-zed
+wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --uninstall
 wget -qO- https://raw.githubusercontent.com/weirdo-adam/issue-jumper/main/scripts/install.sh | sh -s -- --version v0.1.0 --install-dir ~/.local/bin
 ```
 
@@ -134,6 +135,16 @@ issue-jumper install-zed --print
 
 Windows 全局路径为 `%APPDATA%\issue-jumper\config.json`。
 
+当某个项目不希望继承全局配置时，可以在项目配置中设置 `"clear_inherited_config": true`，再声明该项目自己的字段。
+
+校验当前仓库发现的所有配置文件：
+
+```sh
+issue-jumper config lint
+issue-jumper config lint --repo /path/to/repo
+issue-jumper config lint --path /path/to/issue-jumper.json
+```
+
 Redmine 覆盖示例：
 
 ```json
@@ -160,6 +171,8 @@ issue-jumper open [--repo <path>] [--platform <name>] [--rule <name>]
 issue-jumper url [--repo <path>] [--platform <name>] [--rule <name>] [--print-url]
 issue-jumper install-zed [--key <key>] [--force] [--print]
 issue-jumper doctor [--repo <path>]
+issue-jumper config lint [--repo <path>] [--path <file>]
+issue-jumper integration [print] [--target vscode|cursor|generic|all] [--command <path>]
 ```
 
 开发调试示例：
@@ -168,6 +181,8 @@ issue-jumper doctor [--repo <path>]
 cargo run -- url --repo /path/to/repo --print-url
 cargo run -- open --repo /path/to/repo
 cargo run -- doctor --repo /path/to/repo
+cargo run -- config lint --repo /path/to/repo
+cargo run -- integration print --target vscode
 ```
 
 ## 开发

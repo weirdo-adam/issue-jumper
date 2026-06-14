@@ -12,8 +12,16 @@ permissions:
 
 jobs:
   check:
-    name: Check
-    runs-on: ubuntu-latest
+    name: Check ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-14
+          - windows-latest
 
     steps:
       - name: Checkout
@@ -32,4 +40,14 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Run quality gate
-        run: make check
+        shell: bash
+        run: |
+          cargo fmt --all --check
+          cargo clippy --all-targets --all-features -- -D warnings
+          cargo test --all-targets
+
+      - name: Run CLI smoke tests
+        shell: bash
+        run: |
+          cargo run -- config lint
+          cargo run -- integration print --target generic

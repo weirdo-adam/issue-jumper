@@ -7,6 +7,7 @@ key="${KEY:-alt alt}"
 install_zed="${INSTALL_ZED:-1}"
 force=1
 uninstall=0
+force_uninstall=0
 
 if [ -n "${INSTALL_DIR:-}" ]; then
   install_dir="$INSTALL_DIR"
@@ -22,7 +23,7 @@ fi
 usage() {
   cat <<'USAGE'
 Usage: scripts/install.sh [options]
-       scripts/install.sh --uninstall [--install-dir <dir>]
+       scripts/install.sh --uninstall [--install-dir <dir>] [--force-uninstall]
 
 Download a release archive, install issue-jumper, and install the Zed integration.
 Prebuilt release archives currently support Apple Silicon macOS and Linux x64.
@@ -35,6 +36,7 @@ Options:
   --no-force           Fail instead of replacing an existing foreign Zed binding.
   --no-zed             Install only the CLI.
   --uninstall          Remove issue-jumper from the install directory and exit.
+  --force-uninstall    Remove an unknown same-name file during --uninstall.
   --repo <owner/name>  GitHub repository. Defaults to weirdo-adam/issue-jumper.
   -h, --help           Show this help.
 
@@ -79,6 +81,28 @@ warn_if_homebrew_install_exists() {
   } >&2
 }
 
+is_issue_jumper_binary() {
+  binary="$1"
+  [ -x "$binary" ] || return 1
+
+  version_output="$("$binary" --version 2>/dev/null || true)"
+  case "$version_output" in
+    issue-jumper\ *|zed-issue-jumper\ *) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+is_issue_jumper_symlink() {
+  target="$1"
+  [ -L "$target" ] || return 1
+
+  link_target="$(readlink "$target" 2>/dev/null || true)"
+  case "$link_target" in
+    *issue-jumper|*issue-jumper.exe|*zed-issue-jumper|*zed-issue-jumper.exe) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 uninstall_manual_install() {
   target_binary="$install_dir/issue-jumper"
 
@@ -87,6 +111,11 @@ uninstall_manual_install() {
   fi
 
   if [ -e "$target_binary" ] || [ -L "$target_binary" ]; then
+    if [ "$force_uninstall" -ne 1 ] \
+      && ! is_issue_jumper_binary "$target_binary" \
+      && ! is_issue_jumper_symlink "$target_binary"; then
+      die "refusing to remove $target_binary because it does not look like Issue Jumper; pass --force-uninstall to remove it anyway"
+    fi
     rm -f "$target_binary"
     echo "Removed issue-jumper from $target_binary"
   else
@@ -133,6 +162,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --uninstall)
       uninstall=1
+      shift
+      ;;
+    --force-uninstall)
+      force_uninstall=1
       shift
       ;;
     --repo)

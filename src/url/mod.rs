@@ -61,7 +61,7 @@ pub fn build_issue_url(
             let platform = config
                 .custom_platforms
                 .iter()
-                .find(|platform| platform.name == *name)
+                .find(|platform| platform.name.trim().eq_ignore_ascii_case(name))
                 .ok_or_else(|| {
                     IssueJumperError::UrlBuildFailed(format!(
                         "custom platform `{name}` requires a custom_platforms entry"
@@ -283,6 +283,28 @@ mod tests {
             url,
             "https://redmine.company.com/projects/team/app%20repo/owners/team/repos/app%20repo/issues/ABC%201?host=tracker.example.com"
         );
+    }
+
+    #[test]
+    fn resolves_custom_platform_names_case_insensitively() {
+        let config = UserConfig {
+            custom_platforms: vec![crate::config::CustomPlatform {
+                name: "Jira".to_string(),
+                host_patterns: Vec::new(),
+                url_template: "https://jira.example.com/browse/{id}".to_string(),
+            }],
+            ..UserConfig::default()
+        };
+
+        let url = build_issue_url(
+            "ABC-123",
+            &Platform::Custom("jira".to_string()),
+            None,
+            &config,
+        )
+        .unwrap();
+
+        assert_eq!(url, "https://jira.example.com/browse/ABC-123");
     }
 
     #[test]

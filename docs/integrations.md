@@ -13,6 +13,8 @@ issue-jumper integration print --target cursor
 issue-jumper integration print --target generic
 ```
 
+`print` is optional; `issue-jumper integration --target vscode` prints the same VS Code snippets.
+
 Use `--command <path>` when the editor cannot see the same `PATH` as your shell:
 
 ```sh
