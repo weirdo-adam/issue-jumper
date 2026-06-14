@@ -111,7 +111,7 @@ Current release targets:
 - `x86_64-unknown-linux-gnu`
 - `x86_64-pc-windows-msvc`
 
-The workflow supports manual rebuilds from the Actions tab through `workflow_dispatch`; pass the release tag, for example `v0.1.1`.
+The workflow supports manual rebuilds from the Actions tab through `workflow_dispatch`; pass the release tag, for example `v0.1.2`.
 
 ## Homebrew Release
 
@@ -132,7 +132,7 @@ The main release workflow dispatches the tap repository's `Bottle` workflow afte
 The dispatch sends:
 
 - `formula`: `issue-jumper`
-- `release_tag`: the Homebrew bottle tag, for example `issue-jumper-0.1.1`
+- `release_tag`: the Homebrew bottle tag, for example `issue-jumper-0.1.2`
 - `source_url`: the GitHub source archive URL for the release tag
 - `source_sha256`: the SHA-256 checksum for that source archive
 
@@ -147,19 +147,19 @@ Local release scripts remain available for testing or emergency uploads.
 Package the current host target:
 
 ```sh
-scripts/package-release.sh --version v0.1.1
+scripts/package-release.sh --version v0.1.2
 ```
 
 Package a specific target:
 
 ```sh
-scripts/package-release.sh --target aarch64-apple-darwin --version v0.1.1
+scripts/package-release.sh --target aarch64-apple-darwin --version v0.1.2
 ```
 
 Build and upload to GitHub Releases:
 
 ```sh
-scripts/publish-release.sh v0.1.1
+scripts/publish-release.sh v0.1.2
 ```
 
 Run the publish script once per local target you want to maintain in the release assets.

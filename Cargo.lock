@@ -67,7 +67,7 @@ dependencies = [
 
 [[package]]
 name = "issue-jumper"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "json5",
  "regex",
