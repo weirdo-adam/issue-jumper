@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use std::time::Duration;
 
 use crate::error::{IssueJumperError, Result};
 
@@ -80,18 +81,28 @@ impl GitReader {
     }
 
     fn run_git<const N: usize>(&self, args: [&str; N]) -> Result<Output> {
-        let mut command = Command::new(&self.git_binary);
-        command.arg("-C").arg(&self.repo);
-        for arg in args {
-            command.arg(arg);
-        }
-        command.output().map_err(|err| {
-            if err.kind() == std::io::ErrorKind::NotFound {
-                IssueJumperError::GitNotFound
-            } else {
-                IssueJumperError::Io(err.to_string())
+        const TEXT_FILE_BUSY: i32 = 26;
+        const GIT_EXEC_RETRIES: usize = 3;
+
+        for attempt in 0..=GIT_EXEC_RETRIES {
+            let mut command = Command::new(&self.git_binary);
+            command.arg("-C").arg(&self.repo);
+            for arg in &args {
+                command.arg(arg);
             }
-        })
+
+            match command.output() {
+                Ok(output) => return Ok(output),
+                Err(err)
+                    if err.raw_os_error() == Some(TEXT_FILE_BUSY) && attempt < GIT_EXEC_RETRIES =>
+                {
+                    std::thread::sleep(Duration::from_millis(20));
+                }
+                Err(err) => return Err(git_command_error(err)),
+            }
+        }
+
+        unreachable!("git retry loop should always return")
     }
 }
 
@@ -119,6 +130,14 @@ fn output_stderr(output: &Output) -> String {
 fn looks_like_not_git_repo(output: &Output) -> bool {
     let stderr = output_stderr(output);
     stderr_looks_like_not_git_repo(&stderr)
+}
+
+fn git_command_error(err: std::io::Error) -> IssueJumperError {
+    if err.kind() == std::io::ErrorKind::NotFound {
+        IssueJumperError::GitNotFound
+    } else {
+        IssueJumperError::Io(err.to_string())
+    }
 }
 
 fn stderr_looks_like_not_git_repo(stderr: &str) -> bool {
